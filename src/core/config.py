@@ -3,6 +3,12 @@ from logging import config as logging_config
 
 from core.logger import LOGGING
 
+from dotenv import load_dotenv
+
+
+# грузим переменные окружения
+load_dotenv()
+
 # Применяем настройки логирования
 logging_config.dictConfig(LOGGING)
 
@@ -10,6 +16,7 @@ logging_config.dictConfig(LOGGING)
 PROJECT_NAME = os.getenv('PROJECT_NAME', 'movies')
 
 # Настройки Redis
+# docker run --name some-redis -d redis
 REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 
