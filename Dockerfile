@@ -17,4 +17,6 @@ RUN  apt-get update \
 COPY . .
 COPY src/core/docker.env src/core/.env
 
-ENTRYPOINT ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+WORKDIR src
+
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
