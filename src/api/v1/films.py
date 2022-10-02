@@ -12,72 +12,7 @@ from models.film import BaseFilmApi, DetailFilmApi
 router = APIRouter()
 
 
-@router.get('/{film_id}',
-            response_model=DetailFilmApi,
-            summary="Информация по одному фильму",
-            description="Детальная информация по отдельному фильму",
-            )
-async def film_details(film_id: uuid.UUID,
-                       film_service: FilmService =
-                       Depends(get_film_service)) -> DetailFilmApi:
-    """
-    Возвращает информацию по одному фильиу
-    """
-    film = await film_service.get_film_by_id(film_id)
-    if not film:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
-                            detail='film not found')
-    return DetailFilmApi(uuid=film.id,
-                         title=film.title,
-                         imdb_rating=film.imdb_rating,
-                         description=film.description,
-                         genre=film.genre,
-                         actors=film.actors,
-                         writers=film.writers,
-                         director=film.director
-                         )
-
-@router.get('/',
-            response_model=list[BaseFilmApi],
-            summary="Информация по нескольким фильмам",
-            description="Краткая информация по нескольким фильмам",
-            )
-async def films(sort: Union[str, None] = None,
-                limit: Optional[int] = 50,
-                page: Optional[int] = 1,
-                genre: Optional[uuid.UUID] = None,
-                film_service: FilmService = Depends(get_film_service)) -> \
-        Union[list[BaseFilmApi], None]:
-    """
-    Возвращает информацию по нескольким фильмам
-
-    @param sort: имя поля по которому идет сортировка
-    @param limit: количество записей на странице
-    @param page: номер страницы
-    @param genre: uuid-жанра для фильтрации
-    @param film_service:
-    @return: Данные по фильмам
-    """
-
-    films, errors = await film_service.get_films(sort=sort,
-                                                 limit=limit,
-                                                 page=page,
-                                                 genre=genre)
-
-    if errors:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=errors)
-
-    non_detail_film_list = [
-        BaseFilmApi(uuid=film['_source']['id'],
-                    title=film['_source']['title'],
-                    imdb_rating=film['_source']['imdb_rating']
-                    )
-        for film in films
-    ]
-
-    return non_detail_film_list
-
-@router.get('/search/',
+@router.get('/search',
             response_model=list[BaseFilmApi],
             summary="Поиск по фильмам",
             description="Осуществляет нечеткий поиск по фильмам",
@@ -117,6 +52,7 @@ async def films(sort: Union[str, None] = None,
     ]
 
     return search_film_list
+
 
 @router.get('/same/{film_id}',
             response_model=list[BaseFilmApi],
@@ -168,3 +104,69 @@ async def same_films(
     ]
 
     return same_film_list
+
+@router.get('/',
+            response_model=list[BaseFilmApi],
+            summary="Информация по нескольким фильмам",
+            description="Краткая информация по нескольким фильмам",
+            )
+async def films(sort: Union[str, None] = None,
+                limit: Optional[int] = 50,
+                page: Optional[int] = 1,
+                genre: Optional[uuid.UUID] = None,
+                film_service: FilmService = Depends(get_film_service)) -> \
+        Union[list[BaseFilmApi], None]:
+    """
+    Возвращает информацию по нескольким фильмам
+
+    @param sort: имя поля по которому идет сортировка
+    @param limit: количество записей на странице
+    @param page: номер страницы
+    @param genre: uuid-жанра для фильтрации
+    @param film_service:
+    @return: Данные по фильмам
+    """
+
+    films, errors = await film_service.get_films(sort=sort,
+                                                 limit=limit,
+                                                 page=page,
+                                                 genre=genre)
+
+    if errors:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=errors)
+
+    non_detail_film_list = [
+        BaseFilmApi(uuid=film['_source']['id'],
+                    title=film['_source']['title'],
+                    imdb_rating=film['_source']['imdb_rating']
+                    )
+        for film in films
+    ]
+
+    return non_detail_film_list
+
+
+@router.get('/{film_id}',
+            response_model=DetailFilmApi,
+            summary="Информация по одному фильму",
+            description="Детальная информация по отдельному фильму",
+            )
+async def film_details(film_id: uuid.UUID,
+                       film_service: FilmService =
+                       Depends(get_film_service)) -> DetailFilmApi:
+    """
+    Возвращает информацию по одному фильму
+    """
+    film = await film_service.get_film_by_id(film_id)
+    if not film:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
+                            detail='film not found')
+    return DetailFilmApi(uuid=film.id,
+                         title=film.title,
+                         imdb_rating=film.imdb_rating,
+                         description=film.description,
+                         genre=film.genre,
+                         actors=film.actors,
+                         writers=film.writers,
+                         director=film.director
+                         )

@@ -4,8 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from models.mixin import JsonMixin
-from models.person import Persons
-from models.genre import Genre
+from models.person import Person
 
 
 class Film(JsonMixin):
@@ -17,8 +16,8 @@ class Film(JsonMixin):
     imdb_rating: Optional[float]
     description: Optional[str]
     genre: Optional[list]
-    actors: Optional[list[Persons]]
-    writers: Optional[list[Persons]]
+    actors: Optional[list[Person]]
+    writers: Optional[list[Person]]
     director: Optional[list]
 
 
