@@ -8,6 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from services.person import PersonService, get_person_service
 from models.person import BasePersonApi
 from models.film import BaseFilmApi
+from core.params import params
+from core.error_messages import error_msgs
 
 
 router = APIRouter()
@@ -18,12 +20,13 @@ router = APIRouter()
             summary="Поиск по персоналиям",
             description="Осуществляет нечеткий поиск по персоналиям",
             )
-async def persons(sort: Union[str, None] = None,
-                  limit: Optional[int] = 50,
-                  page: Optional[int] = 1,
-                  query: Optional[str] = None,
-                  person_service: PersonService = Depends(get_person_service)) -> \
-        Union[list[BasePersonApi], None]:
+async def persons(
+        sort: Union[str, None] = params.sort,
+        limit: Optional[int] = params.limit,
+        page: Optional[int] = params.page,
+        query: Optional[str] = params.query,
+        person_service: PersonService = Depends(get_person_service)
+) -> Union[list[BasePersonApi], None]:
     """
     Возвращает результаты поиска по имени персоналии.
 
@@ -42,7 +45,8 @@ async def persons(sort: Union[str, None] = None,
                                                        )
 
     if errors:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=errors)
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail=error_msgs.bad_request)
 
     search_person_list = [
         BasePersonApi(uuid=person['_source']['id'],
@@ -59,11 +63,12 @@ async def persons(sort: Union[str, None] = None,
 @router.get('/{person_id}/film',
             response_model=list[BaseFilmApi],
             summary="Список фильмов персоналии",
-            description="Осуществляет получение список фильмов персоналии person_id",
+            description="Осуществляет получение списка фильмов персоналии по person_id",
             )
-async def persons_film(person_id: uuid.UUID,
-                       person_service: PersonService = Depends(get_person_service)) -> \
-        Union[list[BaseFilmApi], None]:
+async def persons_film(
+        person_id: uuid.UUID = params.person_id,
+        person_service: PersonService = Depends(get_person_service)
+) -> Union[list[BaseFilmApi], None]:
     """
     Возвращает список фильмом с участием персоналии person_id.
 
@@ -75,7 +80,8 @@ async def persons_film(person_id: uuid.UUID,
     films, errors = await person_service.get_persons_film(person_id=person_id)
 
     if errors:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=errors)
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail=error_msgs.bad_request)
 
     persons_film_list = [
         BaseFilmApi(uuid=film['_source']['id'],
@@ -92,15 +98,17 @@ async def persons_film(person_id: uuid.UUID,
             summary="Информация по одной персоналии",
             description="Детальная информация по отдельной персоналии",
             )
-async def person_details(person_id: uuid.UUID,
-                         person_service: PersonService =
-                         Depends(get_person_service)) -> BasePersonApi:
+async def person_details(
+        person_id: uuid.UUID = params.person_id,
+        person_service: PersonService =
+        Depends(get_person_service)
+) -> BasePersonApi:
     """Возвращает информацию по одной персоналии."""
 
     person = await person_service.get_person_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
-                            detail='person not found')
+                            detail=person_not_found)
     return BasePersonApi(uuid=person.id,
                          name=person.name,
                          role=person.role,

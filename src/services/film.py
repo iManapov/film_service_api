@@ -89,8 +89,6 @@ class FilmService:
                     }
                 }
 
-                print(query_)
-
             if query:
                 # если в запросе есть параметр query - добавляем запрос на поиск
                 query_ = {
@@ -136,8 +134,6 @@ class FilmService:
                 genre['id']
                 for genre in film['_source']['genre']
             ]
-
-            print(genre)
 
         except NotFoundError:
             return None

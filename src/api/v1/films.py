@@ -7,6 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from services.film import FilmService, get_film_service
 from models.film import BaseFilmApi, DetailFilmApi
+from core.params import params
+from core.error_messages import error_msgs
 
 # Объект router, в котором регистрируем обработчики
 router = APIRouter()
@@ -17,12 +19,13 @@ router = APIRouter()
             summary="Поиск по фильмам",
             description="Осуществляет нечеткий поиск по фильмам",
             )
-async def films(sort: Union[str, None] = None,
-                limit: Optional[int] = 50,
-                page: Optional[int] = 1,
-                query: Optional[str] = None,
-                film_service: FilmService = Depends(get_film_service)) -> \
-        Union[list[BaseFilmApi], None]:
+async def films(
+        sort: Union[str, None] = params.sort,
+        limit: Optional[int] = params.limit,
+        page: Optional[int] = params.page,
+        query: Optional[str] = params.query,
+        film_service: FilmService = Depends(get_film_service)
+) -> Union[list[BaseFilmApi], None]:
     """
     Возвращает результаты поиска по названию фильма
 
@@ -41,7 +44,8 @@ async def films(sort: Union[str, None] = None,
                                                  genre=None)
 
     if errors:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=errors)
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail=error_msgs.bad_request)
 
     search_film_list = [
         BaseFilmApi(uuid=film['_source']['id'],
@@ -60,10 +64,10 @@ async def films(sort: Union[str, None] = None,
             description="Похожие фильмы для заданного фильма",
             )
 async def same_films(
-        film_id: uuid.UUID,
-        sort: Union[str, None] = None,
-        limit: Optional[int] = 50,
-        page: Optional[int] = 1,
+        film_id: uuid.UUID = params.film_id,
+        sort: Union[str, None] = params.sort,
+        limit: Optional[int] = params.limit,
+        page: Optional[int] = params.page,
         film_service: FilmService = Depends(get_film_service)
 ) -> Union[list[BaseFilmApi], None]:
     """
@@ -73,7 +77,6 @@ async def same_films(
     @param sort: имя поля по которому идет сортировка
     @param limit: количество записей на странице
     @param page: номер страницы
-    @param genre: uuid-жанра для фильтрации
     @param film_service:
     @return: Данные по похожим фильмам
     """
@@ -87,12 +90,13 @@ async def same_films(
 
     if not result:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
-                            detail='film not exist or not results')
+                            detail=error_msgs.film_not_exist)
 
     films, errors = result
 
     if errors:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=errors)
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail=error_msgs.bad_request)
 
     same_film_list = [
         BaseFilmApi(uuid=film['_source']['id'],
@@ -110,12 +114,13 @@ async def same_films(
             summary="Информация по нескольким фильмам",
             description="Краткая информация по нескольким фильмам",
             )
-async def films(sort: Union[str, None] = None,
-                limit: Optional[int] = 50,
-                page: Optional[int] = 1,
-                genre: Optional[uuid.UUID] = None,
-                film_service: FilmService = Depends(get_film_service)) -> \
-        Union[list[BaseFilmApi], None]:
+async def films(
+        sort: Union[str, None] = params.sort,
+        limit: Optional[int] = params.limit,
+        page: Optional[int] = params.page,
+        genre: Optional[Union[list[uuid.UUID]]] = params.genre,
+        film_service: FilmService = Depends(get_film_service)
+) -> Union[list[BaseFilmApi], None]:
     """
     Возвращает информацию по нескольким фильмам
 
@@ -133,7 +138,8 @@ async def films(sort: Union[str, None] = None,
                                                  genre=genre)
 
     if errors:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=errors)
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail=error_msgs.bad_request)
 
     non_detail_film_list = [
         BaseFilmApi(uuid=film['_source']['id'],
@@ -151,7 +157,7 @@ async def films(sort: Union[str, None] = None,
             summary="Информация по одному фильму",
             description="Детальная информация по отдельному фильму",
             )
-async def film_details(film_id: uuid.UUID,
+async def film_details(film_id: uuid.UUID = params.film_id,
                        film_service: FilmService =
                        Depends(get_film_service)) -> DetailFilmApi:
     """
@@ -160,7 +166,7 @@ async def film_details(film_id: uuid.UUID,
     film = await film_service.get_film_by_id(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
-                            detail='film not found')
+                            detail=error_msgs.film_not_found)
     return DetailFilmApi(uuid=film.id,
                          title=film.title,
                          imdb_rating=film.imdb_rating,

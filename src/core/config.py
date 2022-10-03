@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Settings(BaseSettings):
-    """Конфиг подключения к бд Postgres."""
+    """Конфиг сервиса"""
 
     project_name: str = Field(..., env="PROJECT_NAME")
 
