@@ -1,23 +1,19 @@
 import uuid
-import json
 
-from functools import lru_cache
-from typing import Optional, List, Union, Any, Tuple, Iterator
+from typing import Optional, Union, Tuple
 
 from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch.exceptions import RequestError
-from elasticsearch_dsl import Search
 from fastapi import Depends, Request, Query
 
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.film import Film
 from utils.cache import Cache
+from utils.sort_string import clear_sort_string
 
 
-
-# FilmService содержит бизнес-логику по работе с фильмами.
 class FilmService:
     def __init__(self, request: Request, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
@@ -68,10 +64,7 @@ class FilmService:
         films = await self.cache.get()
 
         if not films:
-            if sort and sort[0] == '-':
-                sort = ':'.join([sort[1:], 'desc'])
-
-            print(genre)
+            sort = clear_sort_string(sort, 'title')
 
             if genre:
                 # если в запросе есть параметр genre - добавляем запрос
@@ -131,7 +124,7 @@ class FilmService:
 
     async def get_same_films(
             self,
-            film_id: str,
+            film_id: uuid.UUID,
             sort: Optional[str] = None,
             limit: Optional[int] = 50,
             page: Optional[int] = 1,
@@ -157,6 +150,7 @@ class FilmService:
         )
 
         return result
+
 
 def get_film_service(
         request: Request,
