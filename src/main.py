@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from api.v1 import films, genres, persons
-from core import config
+from core.config import settings
 from core.logger import LOGGING
 from db import elastic
 from db import redis
@@ -15,7 +15,7 @@ from db import redis
 
 # Создание FastAPI приложения
 app = FastAPI(
-    title=config.PROJECT_NAME,
+    title=settings.project_name,
     description="Информация о фильмах, жанрах и людях, участвовавших в создании произведения",
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
@@ -28,11 +28,11 @@ app = FastAPI(
 async def startup():
     # Подключаемся к базам при старте сервера
     elastic.es = AsyncElasticsearch(
-        hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}']
+        hosts=[f'{settings.elastic_host}:{settings.elastic_port}']
     )
 
     redis.redis = await aioredis.create_redis_pool(
-        (config.REDIS_HOST, config.REDIS_PORT),
+        (settings.redis_host, settings.redis_port),
         minsize=10,
         maxsize=20
     )

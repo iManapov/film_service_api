@@ -19,4 +19,5 @@ COPY src/core/docker.env src/core/.env
 
 WORKDIR src
 
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["gunicorn", "main:app", "--workers", "4", "--worker-class", \
+            "uvicorn.workers.UvicornH11Worker", "--bind", "0.0.0.0:8000"]

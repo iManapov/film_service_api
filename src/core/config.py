@@ -2,27 +2,30 @@ import os
 from logging import config as logging_config
 
 from core.logger import LOGGING
+from pydantic import BaseSettings, Field
 
-from dotenv import load_dotenv
 
-
-# грузим переменные окружения
-load_dotenv()
-
-# Применяем настройки логирования
 logging_config.dictConfig(LOGGING)
-
-# Название проекта. Используется в Swagger-документации
-PROJECT_NAME = os.getenv('PROJECT_NAME', 'movies')
-
-# Настройки Redis
-# docker run --name some-redis -d redis
-REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
-REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
-
-# Настройки Elasticsearch
-ELASTIC_HOST = os.getenv('ELASTIC_HOST', '127.0.0.1')
-ELASTIC_PORT = int(os.getenv('ELASTIC_PORT', 9200))
-
-# Корень проекта
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+class Settings(BaseSettings):
+    """Конфиг подключения к бд Postgres."""
+
+    project_name: str = Field(..., env="PROJECT_NAME")
+
+    redis_host: str = Field(..., env="REDIS_HOST")
+    redis_port: int = Field(..., env="REDIS_PORT")
+
+    elastic_host: str = Field(..., env="ELASTIC_HOST")
+    elastic_port: int = Field(..., env="ELASTIC_PORT")
+
+    default_page_size: int = 50
+    default_page_number: int = 1
+
+    class Config:
+        env_file = "core/.env"
+        env_file_encoding = "utf-8"
+
+
+settings = Settings()
