@@ -1,6 +1,7 @@
 import json
 
 from dataclasses import dataclass
+from abc import ABC, abstractmethod
 from typing import Union
 
 from fastapi import Request
@@ -10,15 +11,32 @@ from aioredis import Redis
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
 
+class AbstractCache(ABC):
+    """
+    Абстрактный класс для реализации кеширования
+    """
+    #@property
+    #def request(self):
+        #raise NotImplementedError
+
+    @abstractmethod
+    def set(self, data: dict):
+        pass
+
+    @abstractmethod
+    def get(self):
+        pass
+
+
 @dataclass
-class Cache:
+class RedisCache(AbstractCache):
     """
     Класс для кеширования в Redis
     В качестве ключа используется текущий запрошенный URL
     URL получаем из request
     """
-    request: Request
     redis: Redis
+    request: Request
 
     async def set(self, data: dict):
         """
