@@ -10,15 +10,14 @@ from fastapi import Depends, Request, Query
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.film import Film
-from utils.cache import Cache
+from utils.cache import AbstractCache, RedisCache
 from utils.sort_string import clear_sort_string
 
 
 class FilmService:
-    def __init__(self, request: Request, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, cache: AbstractCache, elastic: AsyncElasticsearch):
         self.elastic = elastic
-        self.cache = Cache(request, redis)
+        self.cache = cache
 
     async def get_film_by_id(self, film_id: str) -> Optional[Film]:
         """
@@ -157,4 +156,4 @@ def get_film_service(
     Провайдер FilmService,
     с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
     """
-    return FilmService(request, redis, elastic)
+    return FilmService(RedisCache(redis, request), elastic)

@@ -9,17 +9,16 @@ from fastapi import Depends, Request
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.genre import Genre
-from utils.cache import Cache
+from utils.cache import AbstractCache, RedisCache
 from utils.sort_string import clear_sort_string
 
 
 class GenreService:
     """GenreService содержит бизнес-логику по работе с жанрами."""
 
-    def __init__(self, request: Request, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, cache: AbstractCache, elastic: AsyncElasticsearch):
         self.elastic = elastic
-        self.cache = Cache(request, redis)
+        self.cache = cache
 
     async def get_genre_by_id(self, genre_id: uuid.UUID) -> Optional[Genre]:
         """
@@ -90,4 +89,4 @@ def get_genre_service(
     Провайдер GenreService,
     с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
     """
-    return GenreService(request, redis, elastic)
+    return GenreService(RedisCache(redis, request), elastic)

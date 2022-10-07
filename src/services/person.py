@@ -11,15 +11,14 @@ from db.elastic import get_elastic
 from db.redis import get_redis
 from models.person import Person
 from models.film import BaseFilmApi
-from utils.cache import Cache
+from utils.cache import AbstractCache, RedisCache
 from utils.sort_string import clear_sort_string
 
 
 class PersonService:
-    def __init__(self, request: Request, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, cache: AbstractCache, elastic: AsyncElasticsearch):
         self.elastic = elastic
-        self.cache = Cache(request, redis)
+        self.cache = cache
 
     async def get_person_by_id(self, person_id: uuid.UUID) -> Optional[Person]:
         """
@@ -131,4 +130,4 @@ def get_person_service(
     Провайдер PersonService,
     с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
     """
-    return PersonService(request, redis, elastic)
+    return PersonService(RedisCache(redis, request), elastic)
