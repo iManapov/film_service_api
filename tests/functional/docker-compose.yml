@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+
+  api:
+    build: ../../.
+    image: functional-api-1
+    expose:
+      - "8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+  tests:
+    image: functional-api-1
+    entrypoint: >
+      sh -c "pip install -r ./tests/functional/requirements.txt
+      && pytest ./tests/functional/src"
+    depends_on:
+      - api
+#      && python3 utils/wait_for_es.py
+  #      && python3 utils/wait_for_redis.py
+  redis:
+    image: redis:7.0.5
+    expose:
+      - "6379"
+#    ports:
+#      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    expose:
+      - "9200"
+#    ports:
+#      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms200m -Xmx200m
+      - xpack.security.enabled=false
+    healthcheck:
+      test: ["CMD", "curl", "localhost:9200/_cat/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  nginx:
+    image: nginx:1.23.1
+    volumes:
+      - ../.././nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../.././nginx/configs:/etc/nginx/conf.d:ro
+      - ../.././data:/data/:ro
+    depends_on:
+      - api
+    ports:
+      - "80:80"

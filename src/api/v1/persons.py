@@ -5,11 +5,11 @@ from typing import Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from services.person import PersonService, get_person_service
-from models.person import BasePersonApi
-from models.film import BaseFilmApi
-from core.params import params
-from core.error_messages import error_msgs
+from src.services.person import PersonService, get_person_service
+from src.models.person import BasePersonApi
+from src.models.film import BaseFilmApi
+from src.core.params import params
+from src.core.error_messages import error_msgs
 
 
 router = APIRouter()
