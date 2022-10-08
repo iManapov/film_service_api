@@ -16,7 +16,7 @@ class TestSettings(BaseSettings):
     service_url: str = Field('http://nginx:80', env="SERVICE_URL")
 
     class Config:
-        env_file = ".env"
+        env_file = "tests/functional/.env"
         env_file_encoding = "utf-8"
 
 
