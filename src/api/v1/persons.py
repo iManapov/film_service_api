@@ -108,7 +108,7 @@ async def person_details(
     person = await person_service.get_person_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
-                            detail=person_not_found)
+                            detail=error_msgs.person_not_found)  # Некорректная ссылка к person_not_found
     return BasePersonApi(uuid=person.id,
                          name=person.name,
                          role=person.role,

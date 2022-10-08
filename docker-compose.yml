@@ -3,9 +3,10 @@ version: '3'
 services:
 
   api:
+    container_name: fastapi
     build: .
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     depends_on:
       redis:
         condition: service_healthy
@@ -13,19 +14,23 @@ services:
         condition: service_healthy
 
   redis:
+    container_name: redis
     image: redis:7.0.5
-    expose:
-      - "6379"
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - redis_data:/data
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
-    expose:
-      - "9200"
+    container_name: elasticsearch
+    image: elasticsearch:8.4.1 #docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    ports:
+      - "9200:9200"
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms200m -Xmx200m
@@ -35,6 +40,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    volumes:
+      - elasticsearch_data:/elasticsearch/data
 
   nginx:
     image: nginx:1.23.1
@@ -46,3 +53,9 @@ services:
       - api
     ports:
       - "80:80"
+
+volumes:
+  elasticsearch_data:
+    external:
+      name: elasticsearch_data
+  redis_data:
