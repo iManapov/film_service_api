@@ -5,10 +5,10 @@ from typing import Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from services.film import FilmService, get_film_service
-from models.film import BaseFilmApi, DetailFilmApi
-from core.params import params
-from core.error_messages import error_msgs
+from src.services.film import FilmService, get_film_service
+from src.models.film import BaseFilmApi, DetailFilmApi
+from src.core.params import params
+from src.core.error_messages import error_msgs
 
 # Объект router, в котором регистрируем обработчики
 router = APIRouter()

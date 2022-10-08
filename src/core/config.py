@@ -1,7 +1,7 @@
 import os
 from logging import config as logging_config
 
-from core.logger import LOGGING
+from src.core.logger import LOGGING
 from pydantic import BaseSettings, Field
 
 
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     default_page_number: int = 1
 
     class Config:
-        env_file = "core/.env"
+        env_file = "src/core/.env"
         env_file_encoding = "utf-8"
 
 

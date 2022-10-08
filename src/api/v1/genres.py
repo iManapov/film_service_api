@@ -5,10 +5,10 @@ from typing import Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from services.genre import GenreService, get_genre_service
-from models.genre import BaseGenreApi, DetailGenreApi
-from core.params import params
-from core.error_messages import error_msgs
+from src.services.genre import GenreService, get_genre_service
+from src.models.genre import BaseGenreApi, DetailGenreApi
+from src.core.params import params
+from src.core.error_messages import error_msgs
 
 
 router = APIRouter()

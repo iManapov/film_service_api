@@ -3,8 +3,8 @@ import uuid
 from typing import Optional
 from pydantic import BaseModel
 
-from models.mixin import JsonMixin
-from models.person import Person
+from src.models.mixin import JsonMixin
+from src.models.person import Person
 
 
 class Film(JsonMixin):

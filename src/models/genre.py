@@ -3,7 +3,7 @@ import uuid
 from typing import Optional
 from pydantic import BaseModel
 
-from models.mixin import JsonMixin
+from src.models.mixin import JsonMixin
 
 
 class Genre(JsonMixin):
