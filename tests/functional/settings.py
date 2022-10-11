@@ -9,9 +9,11 @@ class TestSettings(BaseSettings):
 
     es_host: str = Field('elasticsearch', env="ELASTIC_HOST")
     es_port: int = Field(9200, env="ELASTIC_PORT")
-    es_index: str = Field('movies', env="ES_INDEX")
+    es_movies_index: str = Field('movies', env="ES_INDEX")
+    es_genres_index: str = Field('genres', env="ES_INDEX")
+    es_persons_index: str = Field('persons', env="ES_INDEX")
     es_id_field: str = Field('id', env="ES_ID_FIELD")
-    es_index_mapping: dict = Field({}, env="ES_INDEX_MAPPING")
+    # es_index_mapping: dict = Field({}, env="ES_INDEX_MAPPING")
 
     service_url: str = Field('http://nginx:80', env="SERVICE_URL")
 

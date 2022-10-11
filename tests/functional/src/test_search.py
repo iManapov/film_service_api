@@ -1,5 +1,5 @@
 import pytest
-from tests.functional.testdata.es_data import es_data
+# from tests.functional.testdata.es_data import movies_data
 
 
 #  Название теста должно начинаться со слова `test_`
@@ -21,9 +21,9 @@ from tests.functional.testdata.es_data import es_data
     ]
 )
 @pytest.mark.asyncio
-async def test_search(make_get_request, es_write_data, query_data, expected_answer):
+async def test_search(es_write_movies, make_get_request, query_data, expected_answer):
     # 1. Генерируем данные для ES
-    await es_write_data(es_data)
+    await es_write_movies()
 
     # 3. Запрашиваем данные из ES по API
     response = await make_get_request('/films/search', query_data)
