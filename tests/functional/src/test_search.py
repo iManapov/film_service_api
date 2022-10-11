@@ -1,33 +1,32 @@
 import pytest
-# from tests.functional.testdata.es_data import movies_data
 
+from urllib.parse import quote_plus as encode
+from urllib.parse import urlencode
 
-#  Название теста должно начинаться со слова `test_`
-#  Любой тест с асинхронными вызовами нужно оборачивать декоратором `pytest.mark.asyncio`,
-#  который следит за запуском и работой цикла событий.
+from tests.functional.settings import test_settings
+from tests.functional.conftest import make_get_request, check_cache
+from tests.functional.testdata.search_data import search_test_data
 
 
 @pytest.mark.parametrize(
     'query_data, expected_answer',
-    [
-        (
-                {'query': 'The Star'},
-                {'status': 200, 'length': 50}
-        ),
-        (
-                {'query': 'Mashed potato'},
-                {'status': 200, 'length': 0}
-        )
-    ]
+    search_test_data
 )
 @pytest.mark.asyncio
-async def test_search(es_write_movies, make_get_request, query_data, expected_answer):
-    # 1. Генерируем данные для ES
-    await es_write_movies()
+async def test_search(make_get_request,
+                      check_cache,
+                      query_data: dict,
+                      expected_answer: dict):
 
-    # 3. Запрашиваем данные из ES по API
-    response = await make_get_request('/films/search', query_data)
+    body, status = await make_get_request(
+        test_settings.service_url + '/api/v1/films/search',
+        query_data
+    )
 
-    # 4. Проверяем ответ
-    assert response.status == expected_answer['status']
-    assert len(await response.json()) == expected_answer['length']
+    assert status == expected_answer['status']
+    if status == 200:
+        cache_response = await check_cache(
+            f"/api/v1/films/search?b'{urlencode(query_data)}'"
+        )
+        assert len(body) == expected_answer['length']
+        assert len(cache_response) == expected_answer['length']

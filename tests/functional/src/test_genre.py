@@ -1,10 +1,4 @@
 import pytest
-# from tests.functional.testdata.es_data import es_data
-
-
-#  Название теста должно начинаться со слова `test_`
-#  Любой тест с асинхронными вызовами нужно оборачивать декоратором `pytest.mark.asyncio`,
-#  который следит за запуском и работой цикла событий.
 
 
 @pytest.mark.parametrize(
@@ -41,41 +35,52 @@ import pytest
     ]
 )
 @pytest.mark.asyncio
-async def test_genres(es_write_genres, make_get_request, query_data, expected_answer):
-    await es_write_genres()
+async def test_genres(make_get_request, query_data, expected_answer):
+    """
+    Тест для проверки выдачи жанров
+
+    :param make_get_request: фикстура для get запросов
+    :param query_data: параметры запроса
+    :param expected_answer: ожидаемый результат
+    """
+
     # 1. Запрашиваем данные из ES по API
-    response = await make_get_request('/genres', query_data)
+    body, status = await make_get_request('api/v1/genres', query_data)
 
     # 2. Проверяем ответ
-    assert response.status == expected_answer['status']
-    response_body = await response.json()
-    if response.status == 200:
-        assert len(response_body) == expected_answer['length']
-    elif response.status == 422:
-        assert response_body['detail'][0]['type'] == expected_answer['error_msg']
+    assert status == expected_answer['status']
+
+    if status == 200:
+        assert len(body) == expected_answer['length']
+    elif status == 422:
+        assert body['detail'][0]['type'] == expected_answer['error_msg']
 
 
 @pytest.mark.asyncio
 async def test_genres_id(es_delete_by_id, make_get_request):
+    """
+    Тест для проверки выдачи конкретного жанра по id
+
+    :param es_delete_by_id: фикстура для удаления записи в elasticsearch
+    :param make_get_request: фикстура для get запросов
+    """
+
     # 1. Запрашиваем данные из API
-    response = await make_get_request('/genres', {'page[size]': 1})
-    assert response.status == 200
-    body = await response.json()
+    body, status = await make_get_request('api/v1/genres', {'page[size]': 1})
+    assert status == 200
     genre_id = body[0]['uuid']
 
     # 2. Запрашиваем данные из API по определенному id
-    response = await make_get_request(f'/genres/{genre_id}')
-    assert response.status == 200
-    body = await response.json()
+    body, status = await make_get_request(f'api/v1/genres/{genre_id}')
+    assert status == 200
     assert body['uuid'] == genre_id
 
     # 3. Удаляем из Elastic запись с genre_id
     es_delete_by_id('genres', genre_id)
 
     # 4. Заново запрашиваем данные из API по определенному id
-    response = await make_get_request(f'/genres/{genre_id}')
-    assert response.status == 200
-    body = await response.json()
+    body, status = await make_get_request(f'api/v1 /genres/{genre_id}')
+    assert status == 200
     assert body['uuid'] == genre_id
 
 

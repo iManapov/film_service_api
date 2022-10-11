@@ -11,5 +11,5 @@ if __name__ == '__main__':
             if redis_client.ping():
                 break
         except exceptions.ConnectionError:
-            print('Cannot connect to Redis')
+            pass
         time.sleep(1)
