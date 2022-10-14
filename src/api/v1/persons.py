@@ -114,3 +114,40 @@ async def person_details(
                          role=person.role,
                          film_ids=person.film_ids
                          )
+
+
+@router.get('/',
+            response_model=list[BasePersonApi],
+            summary="Информация по нескольким персонам",
+            description="Краткая информация по нескольким персонам",
+            )
+async def genres(
+        sort: Union[str, None] = params.sort,
+        limit: Optional[int] = params.limit,
+        page: Optional[int] = params.page,
+        person_service: PersonService = Depends(get_person_service)
+) -> Union[list[BasePersonApi], None]:
+    """
+    Возвращает информацию по нескольким персонам
+
+    @param sort: имя поля по которому идет сортировка
+    @param limit: количество записей на странице
+    @param page: номер страницы
+    @param person_service:
+    @return: Данные по жанрам
+    """
+
+    persons, errors = await person_service.get_persons(sort=sort, limit=limit, page=page)
+
+    if errors:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail=error_msgs.bad_request)
+
+    non_detail_person_list = [
+        BasePersonApi(uuid=person['_source']['id'],
+                      name=person['_source']['name']
+                      )
+        for person in persons
+    ]
+
+    return non_detail_person_list

@@ -148,7 +148,6 @@ es_persons_index = {
   }
 }
 
-
 es_genres_index = {
   "settings": es_settings,
   "mappings": {
