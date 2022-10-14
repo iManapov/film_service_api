@@ -45,7 +45,7 @@ async def test_genres(make_get_request, query_data, expected_answer):
     """
 
     # 1. Запрашиваем данные из ES по API
-    body, status = await make_get_request('api/v1/genres', query_data)
+    body, status = await make_get_request('/api/v1/genres', query_data)
 
     # 2. Проверяем ответ
     assert status == expected_answer['status']
@@ -66,12 +66,12 @@ async def test_genres_id(es_delete_by_id, make_get_request):
     """
 
     # 1. Запрашиваем данные из API
-    body, status = await make_get_request('api/v1/genres', {'page[size]': 1})
+    body, status = await make_get_request('/api/v1/genres', {'page[size]': 1})
     assert status == 200
     genre_id = body[0]['uuid']
 
     # 2. Запрашиваем данные из API по определенному id
-    body, status = await make_get_request(f'api/v1/genres/{genre_id}')
+    body, status = await make_get_request(f'/api/v1/genres/{genre_id}')
     assert status == 200
     assert body['uuid'] == genre_id
 
@@ -79,9 +79,6 @@ async def test_genres_id(es_delete_by_id, make_get_request):
     es_delete_by_id('genres', genre_id)
 
     # 4. Заново запрашиваем данные из API по определенному id
-    body, status = await make_get_request(f'api/v1 /genres/{genre_id}')
+    body, status = await make_get_request(f'/api/v1/genres/{genre_id}')
     assert status == 200
     assert body['uuid'] == genre_id
-
-
-
