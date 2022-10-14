@@ -121,30 +121,6 @@ async def es_write_data(es_client: AsyncElasticsearch):
         es_client, test_settings.elastic_genres_index, es_genres_index, es_genre_data
     )
     await es_write_data_for_person(es_client, list_with_films_id, es_data_persons)
-    # await es_write_data_to_index(es_client, test_settings.elastic_persons_index,
-    #                              es_persons_index, es_film_data)
-
-    # bulk_query = []
-    #
-    # for row in es_film_data:
-    #     bulk_query.extend([
-    #         json.dumps({'index': {'_index': test_settings.elastic_movies_index,
-    #                               '_id': row[test_settings.elastic_id_field]}
-    #                     }),
-    #         json.dumps(row)
-    #     ])
-    #
-    # str_query = '\n'.join(bulk_query) + '\n'
-    # if not await es_client.indices.exists(index=test_settings.elastic_movies_index):
-    #     await es_client.indices.create(
-    #         index=test_settings.elastic_movies_index,
-    #         body=es_movies_index
-    #     )
-    # response = await es_client.bulk(str_query, refresh=True)
-    #
-    # if response['errors']:
-    #     raise Exception('Ошибка записи данных в Elasticsearch')
-
 
 async def es_write_data_for_person(es_client: AsyncElasticsearch, list_with_films_id: list, person_data: list[dict]):
     bulk_query = []
@@ -190,6 +166,7 @@ def make_get_request(http_session: aiohttp.ClientSession):
     """
 
     async def inner(url: str, query_data: dict = None):
+        url = test_settings.service_url + url
         async with http_session.get(url, params=query_data) as response:
             body = await response.json()
             status = response.status
@@ -239,49 +216,3 @@ def es_delete_by_id(es_client):
         await es_client.delete(index=es_index_name, id=entity_id, doc_type="_doc")
 
     return inner
-
-
-# @pytest.fixture
-# def es_write_genres(es_client):
-#     async def inner():
-#         bulk_query = []
-#         for row in genres_data:
-#             bulk_query.extend([
-#                 json.dumps({'index': {'_index': test_settings.es_genres_index, '_id': row[test_settings.es_id_field]}}),
-#                 json.dumps(row)
-#             ])
-#         str_query = '\n'.join(bulk_query) + '\n'
-#
-#         if not await es_client.indices.exists(index=test_settings.es_genres_index):
-#             await es_client.indices.create(
-#                 index=test_settings.es_genres_index,
-#                 body=es_genres_index
-#             )
-#
-#         response = await es_client.bulk(str_query, refresh=True)
-#         if response['errors']:
-#             raise Exception('Ошибка записи данных в Elasticsearch')
-#     return inner
-#
-#
-# @pytest.fixture
-# def es_write_movies(es_client):
-#     async def inner():
-#         bulk_query = []
-#         for row in movies_data:
-#             bulk_query.extend([
-#                 json.dumps({'index': {'_index': test_settings.es_movies_index, '_id': row[test_settings.es_id_field]}}),
-#                 json.dumps(row)
-#             ])
-#         str_query = '\n'.join(bulk_query) + '\n'
-#
-#         if not await es_client.indices.exists(index=test_settings.es_movies_index):
-#             await es_client.indices.create(
-#                 index=test_settings.es_movies_index,
-#                 body=es_movies_index
-#             )
-#
-#         response = await es_client.bulk(str_query, refresh=True)
-#         if response['errors']:
-#             raise Exception('Ошибка записи данных в Elasticsearch')
-#     return inner

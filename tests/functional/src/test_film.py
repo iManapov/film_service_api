@@ -3,7 +3,6 @@ import pytest
 
 from urllib.parse import quote_plus as encode
 
-from tests.functional.settings import test_settings
 from tests.functional.testdata.film_data import one_film_test_data, list_film_test_data
 
 
@@ -20,9 +19,7 @@ async def test_one_film(make_get_request,
     Тест для проверки выдачи информации
     по одному фильму
     """
-    body, status = await make_get_request(
-        test_settings.service_url + '/api/v1/films/' + str(film_uuid)
-    )
+    body, status = await make_get_request('/api/v1/films/' + str(film_uuid))
 
     assert status == expected_answer['status']
 
@@ -45,10 +42,7 @@ async def test_list_film(make_get_request,
     Тест для проверки выдачи информации
     по нескольким фильмам
     """
-    body, status = await make_get_request(
-        test_settings.service_url + '/api/v1/films/',
-        query_data
-    )
+    body, status = await make_get_request('/api/v1/films/', query_data)
 
     assert status == expected_answer['status']
     if status == 200:
