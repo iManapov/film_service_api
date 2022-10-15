@@ -59,4 +59,3 @@ class ElasticSearch(AbstractSearchEngine):
         )
         response_body = response['hits']['hits']
         return response_body
-
