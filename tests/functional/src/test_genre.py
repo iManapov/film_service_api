@@ -73,15 +73,8 @@ async def test_genres_id(check_cache, make_get_request):
     # 2. Запрашиваем данные из API по определенному id
     body, status = await make_get_request(f'/api/v1/genres/{genre_id}')
     assert status == 200
-    # assert body['uuid'] == genre_id
 
     # 3. Если статус = 200, проверяем запись с genre_id
     if status == 200:
         cache_response = await check_cache(f"/api/v1/genres/{genre_id}?b''")
         assert cache_response['_source']['id'] == genre_id
-    # await es_delete_by_id('genres', genre_id)
-
-    # 4. Заново запрашиваем данные из API по определенному id
-    # body, status = await make_get_request(f'/api/v1/genres/{genre_id}')
-    # assert status == 200
-    # assert body['uuid'] == genre_id
