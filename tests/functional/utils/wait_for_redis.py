@@ -1,7 +1,13 @@
+import os
+import sys
 import time
 
 from redis import Redis, exceptions
-from tests.functional.settings import test_settings
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from settings import test_settings
 
 
 if __name__ == '__main__':
@@ -12,4 +18,4 @@ if __name__ == '__main__':
                 break
         except exceptions.ConnectionError:
             pass
-        time.sleep(1)
+        time.sleep(3)

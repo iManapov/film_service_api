@@ -17,11 +17,12 @@ services:
     image: functional-api-1
     entrypoint: >
       sh -c "pip install -r ./tests/functional/requirements.txt
+      && python3 ./tests/functional/utils/wait_for_es.py
+      && python3 ./tests/functional/utils/wait_for_redis.py
       && pytest ./tests/functional/src"
     depends_on:
       - api
-#      && python3 utils/wait_for_es.py
-  #      && python3 utils/wait_for_redis.py
+
   redis:
     image: redis:7.0.5
     expose:
