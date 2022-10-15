@@ -27,10 +27,10 @@ from tests.functional.testdata.person_data import es_data_persons, correct_id
 @pytest.mark.asyncio
 async def test_person(make_get_request, query_data, expected_answer, url):
 
-    # 3. Запрашиваем данные из ES по API
+    # 1 Запрашиваем данные из ES по API
     body, status = await make_get_request(url, query_data)
 
-    # 4. Проверяем ответ
+    # 2. Проверяем ответ
     assert status == expected_answer['status']
     if hasattr(expected_answer, 'length'):
         assert len(body) == expected_answer['length']
@@ -47,7 +47,7 @@ async def test_person_id(check_cache, make_get_request):
     body, status = await make_get_request(f'/api/v1/persons/{person_id}')
     assert status == 200
 
-    # 3. Если статус = 200, проверяем запись с genre_id
+    # 3. Если статус = 200, проверяем запись с person_id
     if status == 200:
         cache_response = await check_cache(f"/api/v1/persons/{person_id}?b''")
         assert cache_response['_source']['id'] == person_id

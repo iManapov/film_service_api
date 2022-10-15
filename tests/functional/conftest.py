@@ -94,7 +94,7 @@ async def es_write_data_to_index(
                 json.dumps(row),
             ]
         )
-        if hasattr(row, 'director'):  # Пока костыль, потом придумаю нормальную проверку.
+        if es_index_name == es_movies_index:
             list_with_films_id.append(row['id'])
     str_query = "\n".join(bulk_query) + "\n"
     print(f"Writing index {es_index_name}")
