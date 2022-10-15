@@ -131,3 +131,5 @@ dmypy.json
 .pyre/
 
 .python-version
+
+/src/core/docker.env

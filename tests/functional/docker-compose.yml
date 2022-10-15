@@ -3,7 +3,8 @@ version: '3'
 services:
 
   api:
-    build: .
+    build: ../../.
+    image: functional-api-1
     expose:
       - "8000"
     depends_on:
@@ -12,6 +13,15 @@ services:
       elasticsearch:
         condition: service_healthy
 
+  tests:
+    image: functional-api-1
+    entrypoint: >
+      sh -c "pip install -r ./tests/functional/requirements.txt
+      && pytest ./tests/functional/src"
+    depends_on:
+      - api
+#      && python3 utils/wait_for_es.py
+  #      && python3 utils/wait_for_redis.py
   redis:
     image: redis:7.0.5
     expose:
@@ -24,10 +34,8 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
-#    expose:
-#      - "9200"
-    ports:
-      - "9200:9200"
+    expose:
+      - "9200"
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms200m -Xmx200m
@@ -41,9 +49,9 @@ services:
   nginx:
     image: nginx:1.23.1
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/configs:/etc/nginx/conf.d:ro
-      - ./data:/data/:ro
+      - ../.././nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../.././nginx/configs:/etc/nginx/conf.d:ro
+      - ../.././data:/data/:ro
     depends_on:
       - api
     ports:

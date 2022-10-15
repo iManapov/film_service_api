@@ -6,11 +6,11 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch.exceptions import RequestError
 from fastapi import Depends, Request
 
-from db.elastic import get_elastic
-from db.redis import get_redis
-from models.genre import Genre
-from utils.cache import AbstractCache, RedisCache
-from utils.sort_string import clear_sort_string
+from src.db.elastic import get_elastic
+from src.db.redis import get_redis
+from src.models.genre import Genre
+from src.utils.cache import AbstractCache, RedisCache
+from src.utils.sort_string import clear_sort_string
 
 
 class GenreService:

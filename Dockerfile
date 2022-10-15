@@ -17,7 +17,7 @@ RUN  apt-get update \
 COPY . .
 COPY src/core/docker.env src/core/.env
 
-WORKDIR src
+#WORKDIR src
 
-ENTRYPOINT ["gunicorn", "main:app", "--workers", "4", "--worker-class", \
+ENTRYPOINT ["gunicorn", "src.main:app", "--workers", "4", "--worker-class", \
             "uvicorn.workers.UvicornH11Worker", "--bind", "0.0.0.0:8000"]
