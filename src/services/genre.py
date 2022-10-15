@@ -11,12 +11,13 @@ from src.db.redis import get_redis
 from src.models.genre import Genre
 from src.utils.cache import AbstractCache, RedisCache
 from src.utils.sort_string import clear_sort_string
+from src.utils.search import AbstractSearchEngine, ElasticSearch
 
 
 class GenreService:
     """GenreService содержит бизнес-логику по работе с жанрами."""
 
-    def __init__(self, cache: AbstractCache, elastic: AsyncElasticsearch):
+    def __init__(self, cache: AbstractCache, elastic: AbstractSearchEngine):
         self.elastic = elastic
         self.cache = cache
 
@@ -67,9 +68,8 @@ class GenreService:
                     body=query_,
                     size=limit,
                     sort=sort,
-                    from_=limit * (page - 1)
+                    page=page
                 )
-                genres = genres['hits']['hits']
 
                 await self.cache.set(genres)
 
@@ -89,4 +89,4 @@ def get_genre_service(
     Провайдер GenreService,
     с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
     """
-    return GenreService(RedisCache(redis, request), elastic)
+    return GenreService(RedisCache(redis, request), ElasticSearch(elastic))

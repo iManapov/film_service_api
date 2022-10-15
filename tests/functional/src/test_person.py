@@ -48,7 +48,7 @@ from tests.functional.testdata.person_data import es_data_persons, correct_id
 async def test_person(make_get_request, es_write_data, query_data, expected_answer, url, es_delete_by_id):
 
     # 3. Запрашиваем данные из ES по API
-    body, status = await make_get_request(test_settings.service_url + url, query_data)
+    body, status = await make_get_request(url, query_data)
 
     # 4. Проверяем ответ
     assert status == expected_answer['status']

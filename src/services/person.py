@@ -13,10 +13,11 @@ from src.models.person import Person
 from src.models.film import BaseFilmApi
 from src.utils.cache import AbstractCache, RedisCache
 from src.utils.sort_string import clear_sort_string
+from src.utils.search import AbstractSearchEngine, ElasticSearch
 
 
 class PersonService:
-    def __init__(self, cache: AbstractCache, elastic: AsyncElasticsearch):
+    def __init__(self, cache: AbstractCache, elastic: AbstractSearchEngine):
         self.elastic = elastic
         self.cache = cache
 
@@ -80,9 +81,8 @@ class PersonService:
                     body=query_,
                     size=limit,
                     sort=sort,
-                    from_=limit * (page - 1)
+                    page=page
                 )
-                persons = persons['hits']['hits']
                 await self.cache.set(persons)
 
             except RequestError:
@@ -130,4 +130,4 @@ def get_person_service(
     Провайдер PersonService,
     с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
     """
-    return PersonService(RedisCache(redis, request), elastic)
+    return PersonService(RedisCache(redis, request), ElasticSearch(elastic))
