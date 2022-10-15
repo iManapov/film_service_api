@@ -122,6 +122,7 @@ async def es_write_data(es_client: AsyncElasticsearch):
     )
     await es_write_data_for_person(es_client, list_with_films_id, es_data_persons)
 
+
 async def es_write_data_for_person(es_client: AsyncElasticsearch, list_with_films_id: list, person_data: list[dict]):
     bulk_query = []
     for row in person_data:

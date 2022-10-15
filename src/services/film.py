@@ -12,10 +12,11 @@ from src.db.redis import get_redis
 from src.models.film import Film
 from src.utils.cache import AbstractCache, RedisCache
 from src.utils.sort_string import clear_sort_string
+from src.utils.search import AbstractSearchEngine, ElasticSearch
 
 
 class FilmService:
-    def __init__(self, cache: AbstractCache, elastic: AsyncElasticsearch):
+    def __init__(self, cache: AbstractCache, elastic: AbstractSearchEngine):
         self.elastic = elastic
         self.cache = cache
 
@@ -107,9 +108,8 @@ class FilmService:
                     body=query_,
                     size=limit,
                     sort=sort,
-                    from_=limit * (page - 1)
+                    page=page
                 )
-                films = films['hits']['hits']
 
                 await self.cache.set(films)
 
@@ -156,4 +156,4 @@ def get_film_service(
     Провайдер FilmService,
     с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
     """
-    return FilmService(RedisCache(redis, request), elastic)
+    return FilmService(RedisCache(redis, request), ElasticSearch(elastic))
