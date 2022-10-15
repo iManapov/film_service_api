@@ -19,7 +19,7 @@ async def test_person_for_films(make_get_request, es_write_data, query_data, exp
     person_id = correct_id
 
     # 3. Запрашиваем данные из ES по API
-    body, status = await make_get_request(test_settings.service_url + f'/api/v1/persons/{person_id}/film')
+    body, status = await make_get_request(f'/api/v1/persons/{person_id}/film')
 
     # 4. Проверяем ответ
     assert status == expected_answer['status']

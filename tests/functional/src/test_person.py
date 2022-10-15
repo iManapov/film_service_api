@@ -58,11 +58,11 @@ async def test_person(make_get_request, es_write_data, query_data, expected_answ
 
 @pytest.mark.asyncio
 async def test_redis_person_id(es_delete_by_id, make_get_request):
-    body, status = await make_get_request(test_settings.service_url + '/api/v1/persons', {'page[size]': 1})
+    body, status = await make_get_request('/api/v1/persons', {'page[size]': 1})
     assert status == 200
     person_id = body[0]['uuid']
     # 2. Запрашиваем данные из API по определенному id
-    body, status = await make_get_request(test_settings.service_url + f'/api/v1/persons/{person_id}')
+    body, status = await make_get_request(f'/api/v1/persons/{person_id}')
     assert status == 200
     assert body['uuid'] == person_id
 
@@ -70,7 +70,7 @@ async def test_redis_person_id(es_delete_by_id, make_get_request):
     es_delete_by_id('persons', person_id)
 
     # 4. Заново запрашиваем данные из API по определенному id
-    body, status = await make_get_request(test_settings.service_url + f'/api/v1/persons/{person_id}')
+    body, status = await make_get_request(f'/api/v1/persons/{person_id}')
     assert status == 200
     assert body['uuid'] == person_id
 
