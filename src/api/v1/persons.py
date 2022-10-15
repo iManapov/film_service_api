@@ -121,7 +121,7 @@ async def person_details(
             summary="Информация по нескольким персонам",
             description="Краткая информация по нескольким персонам",
             )
-async def genres(
+async def persons(
         sort: Union[str, None] = params.sort,
         limit: Optional[int] = params.limit,
         page: Optional[int] = params.page,

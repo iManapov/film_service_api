@@ -4,29 +4,9 @@ from tests.functional.settings import test_settings
 from tests.functional.testdata.person_data import es_data_persons, correct_id
 
 
-#  Название теста должно начинаться со слова `test_`
-#  Любой тест с асинхронными вызовами нужно оборачивать декоратором `pytest.mark.asyncio`,
-#  который следит за запуском и работой цикла событий.
-
-
 @pytest.mark.parametrize(
     'url, query_data, expected_answer',
     [
-        (
-                '/api/v1/persons/search',
-                {'query': 'Eduardo Durant'},
-                {'status': 200, 'length': 30}
-        ),
-        (
-                '/api/v1/persons/search',
-                {'query': 'Mashed potato'},
-                {'status': 200, 'length': 0}
-        ),
-        (
-                '/api/v1/persons/search',
-                {'query': 'Eduardo Durant', 'page[size]': 60, "page[number]": -1},
-                {'status': 422}
-        ),
         (
                 '/api/v1/persons',
                 {'page[size]': 60, "page[number]": -1},
@@ -45,10 +25,10 @@ from tests.functional.testdata.person_data import es_data_persons, correct_id
     ]
 )
 @pytest.mark.asyncio
-async def test_person(make_get_request, es_write_data, query_data, expected_answer, url, es_delete_by_id):
+async def test_person(make_get_request, query_data, expected_answer, url):
 
     # 3. Запрашиваем данные из ES по API
-    body, status = await make_get_request(test_settings.service_url + url, query_data)
+    body, status = await make_get_request(url, query_data)
 
     # 4. Проверяем ответ
     assert status == expected_answer['status']
@@ -57,21 +37,17 @@ async def test_person(make_get_request, es_write_data, query_data, expected_answ
 
 
 @pytest.mark.asyncio
-async def test_redis_person_id(es_delete_by_id, make_get_request):
+async def test_person_id(check_cache, make_get_request):
+    # 1. Запрашиваем данные из API
     body, status = await make_get_request('/api/v1/persons', {'page[size]': 1})
     assert status == 200
     person_id = body[0]['uuid']
+
     # 2. Запрашиваем данные из API по определенному id
     body, status = await make_get_request(f'/api/v1/persons/{person_id}')
     assert status == 200
-    assert body['uuid'] == person_id
 
-    # 3. Удаляем из Elastic запись с person_id
-    es_delete_by_id('persons', person_id)
-
-    # 4. Заново запрашиваем данные из API по определенному id
-    body, status = await make_get_request(f'/api/v1/persons/{person_id}')
-    assert status == 200
-    assert body['uuid'] == person_id
-
-
+    # 3. Если статус = 200, проверяем запись с genre_id
+    if status == 200:
+        cache_response = await check_cache(f"/api/v1/persons/{person_id}?b''")
+        assert cache_response['_source']['id'] == person_id
