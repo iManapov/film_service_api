@@ -30,8 +30,7 @@ class PersonService(Views):
         @return: объект-персона
         """
         person = await self.get_record_by_id(person_id, 'persons')
-        person = Person(**person['_source'])
-        return person
+        return Person(**person['_source']) if person else None
 
     async def get_persons(
             self,

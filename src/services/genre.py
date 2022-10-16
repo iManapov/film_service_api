@@ -30,8 +30,7 @@ class GenreService(Views):
         @return: объект-жанр
         """
         genre = await self.get_record_by_id(genre_id, 'genres')
-        genre = Genre(**genre['_source'])
-        return genre
+        return Genre(**genre['_source']) if genre else None
 
     async def get_genres(
             self,

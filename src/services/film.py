@@ -29,8 +29,7 @@ class FilmService(Views):
         @return: объект-фильм
         """
         film = await self.get_record_by_id(film_id, 'movies')
-        film = Film(**film['_source'])
-        return film
+        return Film(**film['_source']) if film else None
 
     async def get_films(
             self,
