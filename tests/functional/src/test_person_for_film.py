@@ -1,7 +1,8 @@
 import pytest
-from tests.functional.testdata.person_data import es_data_persons, correct_id
-from tests.functional.testdata.film_data import es_film_data
-from tests.functional.settings import test_settings
+from tests.functional.testdata.person_data import correct_id
+
+
+pytestmark = pytest.mark.asyncio
 
 
 @pytest.mark.parametrize(
@@ -13,7 +14,6 @@ from tests.functional.settings import test_settings
         ),
     ]
 )
-@pytest.mark.asyncio
 async def test_person_for_films(make_get_request, es_write_data, query_data, expected_answer):
     # 1. Генерируем данные для ES
     person_id = correct_id

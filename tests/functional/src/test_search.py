@@ -5,11 +5,13 @@ from urllib.parse import urlencode
 from tests.functional.testdata.search_data import search_test_data
 
 
+pytestmark = pytest.mark.asyncio
+
+
 @pytest.mark.parametrize(
     'url, query_data, expected_answer',
     search_test_data
 )
-@pytest.mark.asyncio
 async def test_search(make_get_request,
                       check_cache,
                       url: str,

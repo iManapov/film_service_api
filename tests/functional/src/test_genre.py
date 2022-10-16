@@ -1,6 +1,9 @@
 import pytest
 
 
+pytestmark = pytest.mark.asyncio
+
+
 @pytest.mark.parametrize(
     'query_data, expected_answer',
     [
@@ -34,7 +37,6 @@ import pytest
         )
     ]
 )
-@pytest.mark.asyncio
 async def test_genres(make_get_request, query_data, expected_answer):
     """
     Тест для проверки выдачи жанров
@@ -56,7 +58,6 @@ async def test_genres(make_get_request, query_data, expected_answer):
         assert body['detail'][0]['type'] == expected_answer['error_msg']
 
 
-@pytest.mark.asyncio
 async def test_genres_id(check_cache, make_get_request):
     """
     Тест для проверки выдачи конкретного жанра по id
