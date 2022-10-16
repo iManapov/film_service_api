@@ -1,4 +1,5 @@
 import datetime
+from http import HTTPStatus
 import uuid
 
 
@@ -54,12 +55,12 @@ es_film_data.append(
 )
 
 one_film_test_data = [
-    (12345, {"status": 422, "response": ""}),
-    ("string", {"status": 422, "response": ""}),
+    (12345, {"status": HTTPStatus.UNPROCESSABLE_ENTITY, "response": ""}),
+    ("string", {"status": HTTPStatus.UNPROCESSABLE_ENTITY, "response": ""}),
     (
         "59a067af-b255-4464-839f-daad80dd78d1",  # Действительный
         {
-            "status": 200,
+            "status": HTTPStatus.OK,
             "response": {
                 "uuid": "59a067af-b255-4464-839f-daad80dd78d1",
                 "title": "The Man",
@@ -103,17 +104,17 @@ one_film_test_data = [
     ),
     (
         "3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff",  # Недействительный
-        {"status": 404, "response": ""},
+        {"status": HTTPStatus.NOT_FOUND, "response": ""},
     ),
 ]
 
 list_film_test_data = [
-    ({"page[number]": -4, "page[size]": 20}, {"status": 422, "length": 0}),
-    ({"page[number]": 2, "page[size]": 101}, {"status": 422, "length": 0}),
-    ({"page[number]": 1, "page[size]": 45}, {"status": 200, "length": 45}),
-    ({"page[number]": 10, "sort": "-imdb_rating"}, {"status": 200, "length": 0}),
+    ({"page[number]": -4, "page[size]": 20}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY, "length": 0}),
+    ({"page[number]": 2, "page[size]": 101}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY, "length": 0}),
+    ({"page[number]": 1, "page[size]": 45}, {"status": HTTPStatus.OK, "length": 45}),
+    ({"page[number]": 10, "sort": "-imdb_rating"}, {"status": HTTPStatus.OK, "length": 0}),
     (
         {"page[number]": 1, "genre": "120a21cf-9097-479e-904a-13dd7198c1de"},
-        {"status": 200, "length": 1},
+        {"status": HTTPStatus.OK, "length": 1},
     ),
 ]

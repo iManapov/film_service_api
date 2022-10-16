@@ -1,4 +1,6 @@
+from http import HTTPStatus
 import pytest
+
 from tests.functional.testdata.person_data import correct_id
 
 
@@ -9,12 +11,11 @@ pytestmark = pytest.mark.asyncio
     'expected_answer',
     [
         (
-
-                {'status': 200}
+            {'status': HTTPStatus.OK}
         ),
     ]
 )
-async def test_person_for_films(make_get_request, es_write_data, query_data, expected_answer):
+async def test_person_for_films(make_get_request, es_write_data, expected_answer):
     # 1. Генерируем данные для ES
     person_id = correct_id
 
@@ -23,5 +24,3 @@ async def test_person_for_films(make_get_request, es_write_data, query_data, exp
 
     # 3. Проверяем ответ
     assert status == expected_answer['status']
-
-

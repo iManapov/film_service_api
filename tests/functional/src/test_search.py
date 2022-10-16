@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import pytest
 
 from urllib.parse import urlencode
@@ -21,7 +22,7 @@ async def test_search(make_get_request,
     body, status = await make_get_request(url, query_data)
 
     assert status == expected_answer['status']
-    if status == 200:
+    if status == HTTPStatus.OK:
         cache_response = await check_cache(
             f"{url}?b'{urlencode(query_data)}'"
         )

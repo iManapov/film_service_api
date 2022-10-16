@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import uuid
 import pytest
 
@@ -25,7 +26,7 @@ async def test_one_film(make_get_request,
 
     assert status == expected_answer['status']
 
-    if status == 200:
+    if status == HTTPStatus.OK:
         cache_response = await check_cache(f"/api/v1/films/{str(film_uuid)}?b''")
         assert body == expected_answer['response']
         assert cache_response['_source']['id'] == expected_answer['response']['uuid']
@@ -46,7 +47,7 @@ async def test_list_film(make_get_request,
     body, status = await make_get_request('/api/v1/films/', query_data)
 
     assert status == expected_answer['status']
-    if status == 200:
+    if status == HTTPStatus.OK:
         query_string = '&'.join('{}={}'.format(encode(key), value)
                                 for key, value in query_data.items())
         cache_response = await check_cache(
