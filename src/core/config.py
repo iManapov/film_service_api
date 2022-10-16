@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     default_page_size: int = 50
     default_page_number: int = 1
 
+    FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+
     class Config:
         env_file = "src/core/.env"
         env_file_encoding = "utf-8"
