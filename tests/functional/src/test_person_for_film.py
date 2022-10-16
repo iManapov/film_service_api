@@ -1,20 +1,21 @@
+from http import HTTPStatus
 import pytest
-from tests.functional.testdata.person_data import es_data_persons, correct_id
-from tests.functional.testdata.film_data import es_film_data
-from tests.functional.settings import test_settings
+
+from tests.functional.testdata.person_data import correct_id
+
+
+pytestmark = pytest.mark.asyncio
 
 
 @pytest.mark.parametrize(
     'expected_answer',
     [
         (
-
-                {'status': 200}
+            {'status': HTTPStatus.OK}
         ),
     ]
 )
-@pytest.mark.asyncio
-async def test_person_for_films(make_get_request, es_write_data, expected_answer):
+async def test_person_for_films(make_get_request, expected_answer):
     # 1. Генерируем данные для ES
     person_id = correct_id
 
@@ -23,5 +24,3 @@ async def test_person_for_films(make_get_request, es_write_data, expected_answer
 
     # 3. Проверяем ответ
     assert status == expected_answer['status']
-
-

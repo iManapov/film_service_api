@@ -7,6 +7,7 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch.exceptions import RequestError
 from fastapi import Depends, Request, Query
 
+from src.services.views import Views
 from src.db.elastic import get_elastic
 from src.db.redis import get_redis
 from src.models.film import Film
@@ -15,29 +16,20 @@ from src.utils.sort_string import clear_sort_string
 from src.utils.search import AbstractSearchEngine, ElasticSearch
 
 
-class FilmService:
+class FilmService(Views):
     def __init__(self, cache: AbstractCache, elastic: AbstractSearchEngine):
         self.elastic = elastic
         self.cache = cache
 
-    async def get_film_by_id(self, film_id: str) -> Optional[Film]:
+    async def get_film_by_id(self, film_id: uuid.UUID) -> Optional[Film]:
         """
         Получаем фильм по uuid
 
         @param film_id: uuid фильма
         @return: объект-фильм
         """
-        film = await self.cache.get()
-
-        if not film:
-            try:
-                film = await self.elastic.get('movies', film_id)
-            except NotFoundError:
-                return None
-            await self.cache.set(film)
-
-        film = Film(**film['_source'])
-        return film
+        film = await self.get_record_by_id(film_id, 'movies')
+        return Film(**film['_source']) if film else None
 
     async def get_films(
             self,
@@ -149,7 +141,7 @@ class FilmService:
 
 def get_film_service(
         request: Request,
-        redis: Redis = Depends(get_redis),
+        redis: RedisCache = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> FilmService:
     """

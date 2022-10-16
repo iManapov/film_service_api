@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import pytest
 
 from urllib.parse import urlencode
@@ -5,11 +6,13 @@ from urllib.parse import urlencode
 from tests.functional.testdata.search_data import search_test_data
 
 
+pytestmark = pytest.mark.asyncio
+
+
 @pytest.mark.parametrize(
     'url, query_data, expected_answer',
     search_test_data
 )
-@pytest.mark.asyncio
 async def test_search(make_get_request,
                       check_cache,
                       url: str,
@@ -19,7 +22,7 @@ async def test_search(make_get_request,
     body, status = await make_get_request(url, query_data)
 
     assert status == expected_answer['status']
-    if status == 200:
+    if status == HTTPStatus.OK:
         cache_response = await check_cache(
             f"{url}?b'{urlencode(query_data)}'"
         )

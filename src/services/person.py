@@ -7,6 +7,7 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch.exceptions import RequestError
 from fastapi import Depends, Request
 
+from src.services.views import Views
 from src.db.elastic import get_elastic
 from src.db.redis import get_redis
 from src.models.person import Person
@@ -16,7 +17,7 @@ from src.utils.sort_string import clear_sort_string
 from src.utils.search import AbstractSearchEngine, ElasticSearch
 
 
-class PersonService:
+class PersonService(Views):
     def __init__(self, cache: AbstractCache, elastic: AbstractSearchEngine):
         self.elastic = elastic
         self.cache = cache
@@ -28,17 +29,8 @@ class PersonService:
         @param person_id: uuid персоны
         @return: объект-персона
         """
-        person = await self.cache.get()
-
-        if not person:
-            try:
-                person = await self.elastic.get('persons', person_id)
-            except NotFoundError:
-                return None
-            await self.cache.set(person)
-
-        person = Person(**person['_source'])
-        return person
+        person = await self.get_record_by_id(person_id, 'persons')
+        return Person(**person['_source']) if person else None
 
     async def get_persons(
             self,
@@ -123,7 +115,7 @@ class PersonService:
 
 def get_person_service(
         request: Request,
-        redis: Redis = Depends(get_redis),
+        redis: RedisCache = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> PersonService:
     """

@@ -6,6 +6,7 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from elasticsearch.exceptions import RequestError
 from fastapi import Depends, Request
 
+from src.services.views import Views
 from src.db.elastic import get_elastic
 from src.db.redis import get_redis
 from src.models.genre import Genre
@@ -14,7 +15,7 @@ from src.utils.sort_string import clear_sort_string
 from src.utils.search import AbstractSearchEngine, ElasticSearch
 
 
-class GenreService:
+class GenreService(Views):
     """GenreService содержит бизнес-логику по работе с жанрами."""
 
     def __init__(self, cache: AbstractCache, elastic: AbstractSearchEngine):
@@ -28,17 +29,8 @@ class GenreService:
         @param genre_id: uuid жанра
         @return: объект-жанр
         """
-        genre = await self.cache.get()
-
-        if not genre:
-            try:
-                genre = await self.elastic.get('genres', genre_id)
-            except NotFoundError:
-                return None
-            await self.cache.set(genre)
-
-        genre = Genre(**genre['_source'])
-        return genre
+        genre = await self.get_record_by_id(genre_id, 'genres')
+        return Genre(**genre['_source']) if genre else None
 
     async def get_genres(
             self,
@@ -82,7 +74,7 @@ class GenreService:
 
 def get_genre_service(
         request: Request,
-        redis: Redis = Depends(get_redis),
+        redis: RedisCache = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> GenreService:
     """
