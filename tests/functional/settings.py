@@ -16,6 +16,10 @@ class TestSettings(BaseSettings):
 
     service_url: str = Field("http://nginx:80", env="FAST_API_URL")
 
+    backoff_start_sleep_time: float = 1
+    backoff_factor: int = 2
+    backoff_border_sleep_time: int = 10
+
     class Config:
         env_file = "tests/functional/.env"
         env_file_encoding = "utf-8"
