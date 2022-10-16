@@ -7,18 +7,13 @@ from typing import Union
 from fastapi import Request
 from aioredis import Redis
 
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+from src.core.config import settings
 
 
 class AbstractCache(ABC):
     """
     Абстрактный класс для реализации кеширования
     """
-    #@property
-    #def request(self):
-        #raise NotImplementedError
-
     @abstractmethod
     def set(self, data: dict):
         pass
@@ -47,7 +42,7 @@ class RedisCache(AbstractCache):
         current_url = f"{self.request['path']}?{self.request['query_string']}"
         await self.redis.set(current_url,
                              json.dumps(data),
-                             expire=FILM_CACHE_EXPIRE_IN_SECONDS)
+                             expire=settings.FILM_CACHE_EXPIRE_IN_SECONDS)
 
     async def get(self) -> Union[dict, None]:
         """
