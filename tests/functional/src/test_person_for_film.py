@@ -14,7 +14,7 @@ from tests.functional.settings import test_settings
     ]
 )
 @pytest.mark.asyncio
-async def test_person_for_films(make_get_request, es_write_data, expected_answer):
+async def test_person_for_films(make_get_request, expected_answer):
     # 1. Генерируем данные для ES
     person_id = correct_id
 
