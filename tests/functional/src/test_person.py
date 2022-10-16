@@ -1,7 +1,9 @@
 import pytest
 
-from tests.functional.settings import test_settings
 from tests.functional.testdata.person_data import es_data_persons, correct_id
+
+
+pytestmark = pytest.mark.asyncio
 
 
 @pytest.mark.parametrize(
@@ -24,7 +26,6 @@ from tests.functional.testdata.person_data import es_data_persons, correct_id
         )
     ]
 )
-@pytest.mark.asyncio
 async def test_person(make_get_request, query_data, expected_answer, url):
 
     # 1 Запрашиваем данные из ES по API
@@ -36,7 +37,6 @@ async def test_person(make_get_request, query_data, expected_answer, url):
         assert len(body) == expected_answer['length']
 
 
-@pytest.mark.asyncio
 async def test_person_id(check_cache, make_get_request):
     # 1. Запрашиваем данные из API
     body, status = await make_get_request('/api/v1/persons', {'page[size]': 1})

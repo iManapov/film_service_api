@@ -75,7 +75,7 @@ class GenreService(Views):
 
 def get_genre_service(
         request: Request,
-        redis: Redis = Depends(get_redis),
+        redis: RedisCache = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> GenreService:
     """

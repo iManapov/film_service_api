@@ -6,11 +6,13 @@ from urllib.parse import quote_plus as encode
 from tests.functional.testdata.film_data import one_film_test_data, list_film_test_data
 
 
+pytestmark = pytest.mark.asyncio
+
+
 @pytest.mark.parametrize(
     'film_uuid, expected_answer',
     one_film_test_data
 )
-@pytest.mark.asyncio
 async def test_one_film(make_get_request,
                         check_cache,
                         film_uuid: uuid.UUID,
@@ -33,7 +35,6 @@ async def test_one_film(make_get_request,
     'query_data, expected_answer',
     list_film_test_data
 )
-@pytest.mark.asyncio
 async def test_list_film(make_get_request,
                          check_cache,
                          query_data: dict,
