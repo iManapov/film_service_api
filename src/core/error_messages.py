@@ -15,5 +15,10 @@ class ErrorMsg:
 
     person_not_found: str = 'Person not found'
 
+    non_valid_token: str = 'Token not valid'
+    non_fresh_token: str = 'Token was expired'
+    authorized_only: str = 'Only authorized users'
+    subscription_only: str = 'Subscription only'
+
 
 error_msgs = ErrorMsg()

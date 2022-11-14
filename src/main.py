@@ -1,10 +1,16 @@
 import logging
+import os
+import sys
 
 import aioredis
 import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from fastapi_jwt_auth import AuthJWT
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from src.api.v1 import films, genres, persons
 from src.core.config import settings
@@ -22,6 +28,12 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     version='1.0.0'
 )
+
+
+# callback to get your configuration
+@AuthJWT.load_config
+def get_config():
+    return settings
 
 
 @app.on_event('startup')
