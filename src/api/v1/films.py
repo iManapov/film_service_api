@@ -4,6 +4,9 @@ from http import HTTPStatus
 from typing import Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi_jwt_auth import AuthJWT
+from fastapi_jwt_auth.exceptions import JWTDecodeError, MissingTokenError
 
 from src.services.film import FilmService, get_film_service
 from src.models.film import BaseFilmApi, DetailFilmApi
@@ -155,18 +158,40 @@ async def films(
 @router.get('/{film_id}',
             response_model=DetailFilmApi,
             summary="Информация по одному фильму",
-            description="Детальная информация по отдельному фильму",
+            description="""
+                        Детальная информация по отдельному фильму.
+                        Если у фильма проставлен тэг 'subscription_only'
+                        то доступ только пользователям с ролью 'subscriber
+                        """
             )
-async def film_details(film_id: uuid.UUID = params.film_id,
-                       film_service: FilmService =
-                       Depends(get_film_service)) -> DetailFilmApi:
+async def film_details(
+        film_id: uuid.UUID = params.film_id,
+        film_service: FilmService = Depends(get_film_service),
+        token: HTTPAuthorizationCredentials = Depends(HTTPBearer(bearerFormat='Bearer')),
+        authorize: AuthJWT = Depends()) -> DetailFilmApi:
     """
     Возвращает информацию по одному фильму
     """
+    try:
+        authorize.jwt_required()
+    except JWTDecodeError:
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                            detail=error_msgs.non_valid_token)
+    except MissingTokenError:
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED,
+                            detail=error_msgs.authorized_only)
+
+    roles = authorize.get_raw_jwt()['roles']
     film = await film_service.get_film_by_id(film_id)
+
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail=error_msgs.film_not_found)
+
+    if film.tag == 'subscription_only' and not ('subscriber' in roles):
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN,
+                            detail=error_msgs.subscription_only)
+
     return DetailFilmApi(uuid=film.id,
                          title=film.title,
                          imdb_rating=film.imdb_rating,

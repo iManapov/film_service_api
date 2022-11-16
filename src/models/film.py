@@ -19,6 +19,7 @@ class Film(JsonMixin):
     actors: Optional[list[Person]]
     writers: Optional[list[Person]]
     director: Optional[list]
+    tag: Optional[str]
 
 
 # Модели ответа API

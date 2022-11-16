@@ -25,6 +25,8 @@ class Settings(BaseSettings):
 
     FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
+    authjwt_secret_key: str = "super-secret" # должен совпадать с сервисом авторизации
+
     class Config:
         env_file = "src/core/.env"
         env_file_encoding = "utf-8"
