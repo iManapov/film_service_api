@@ -25,7 +25,9 @@ class Settings(BaseSettings):
 
     FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
-    authjwt_secret_key: str = "super-secret" # должен совпадать с сервисом авторизации
+    authjwt_secret_key: str = "super-secret"  # должен совпадать с сервисом авторизации
+
+    sentry_dsn: str = Field(..., env='SENTRY_DSN')
 
     class Config:
         env_file = "src/core/.env"

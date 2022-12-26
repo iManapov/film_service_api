@@ -5,32 +5,40 @@ services:
   api:
     container_name: fastapi
     build: .
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on:
       redis:
         condition: service_healthy
-      elasticsearch:
+      elasticsearch-api:
         condition: service_healthy
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: async-api
 
   redis:
     container_name: redis
     image: redis:7.0.5
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    volumes:
-      - redis_data:/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: redis-async-api
 
-  elasticsearch:
-    container_name: elasticsearch
-    image: elasticsearch:8.4.1 #docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+  elasticsearch-api:
+    container_name:   elasticsearch-api
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     ports:
-      - "9200:9200"
+      - "9201:9200"
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms200m -Xmx200m
@@ -40,8 +48,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-    volumes:
-      - elasticsearch_data:/elasticsearch/data
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: elasticsearch-async-api
 
   nginx:
     image: nginx:1.23.1
@@ -53,9 +64,8 @@ services:
       - api
     ports:
       - "80:80"
-
-volumes:
-  elasticsearch_data:
-    external:
-      name: elasticsearch_data
-  redis_data:
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: nginx-async-api

@@ -9,3 +9,4 @@ uvloop
 python-dotenv==0.21.0
 gunicorn==20.1.0
 fastapi-jwt-auth==0.5.0
+sentry-sdk[fastapi]==1.12.0

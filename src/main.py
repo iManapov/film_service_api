@@ -8,6 +8,7 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi_jwt_auth import AuthJWT
+import sentry_sdk
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -18,6 +19,12 @@ from src.core.logger import LOGGING
 from src.db import elastic
 from src.db import redis
 
+
+# Инициализируем Sentry SDK до инициализации FastAPI
+sentry_sdk.init(
+    dsn=settings.sentry_dsn,
+    traces_sample_rate=1.0,
+)
 
 # Создание FastAPI приложения
 app = FastAPI(
