@@ -20,6 +20,7 @@ class Film(JsonMixin):
     writers: Optional[list[Person]]
     director: Optional[list]
     tag: Optional[str]
+    price: float
 
 
 # Модели ответа API
@@ -30,6 +31,7 @@ class BaseFilmApi(BaseModel):
     uuid: uuid.UUID
     title: str
     imdb_rating: Optional[float]
+    price: float
 
 
 class DetailFilmApi(BaseFilmApi):

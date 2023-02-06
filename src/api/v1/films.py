@@ -195,9 +195,10 @@ async def film_details(
     return DetailFilmApi(uuid=film.id,
                          title=film.title,
                          imdb_rating=film.imdb_rating,
+                         price=film.price,
                          description=film.description,
                          genre=film.genre,
                          actors=film.actors,
                          writers=film.writers,
-                         director=film.director
+                         director=film.director,
                          )
