@@ -32,6 +32,7 @@ class BaseFilmApi(BaseModel):
     title: str
     imdb_rating: Optional[float]
     price: float
+    tag: str
 
 
 class DetailFilmApi(BaseFilmApi):
