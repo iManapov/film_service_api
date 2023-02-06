@@ -168,7 +168,8 @@ async def film_details(
         film_id: uuid.UUID = params.film_id,
         film_service: FilmService = Depends(get_film_service),
         token: HTTPAuthorizationCredentials = Depends(HTTPBearer(bearerFormat='Bearer')),
-        authorize: AuthJWT = Depends()) -> DetailFilmApi:
+        authorize: AuthJWT = Depends()
+) -> DetailFilmApi:
     """
     Возвращает информацию по одному фильму
     """
@@ -201,4 +202,5 @@ async def film_details(
                          actors=film.actors,
                          writers=film.writers,
                          director=film.director,
+                         tag=film.tag,
                          )
