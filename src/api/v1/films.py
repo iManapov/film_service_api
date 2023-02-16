@@ -147,7 +147,9 @@ async def films(
     non_detail_film_list = [
         BaseFilmApi(uuid=film['_source']['id'],
                     title=film['_source']['title'],
-                    imdb_rating=film['_source']['imdb_rating']
+                    imdb_rating=film['_source']['imdb_rating'],
+                    price=film['_source']['price'],
+                    tag=film['_source']['tag'],
                     )
         for film in films
     ]
