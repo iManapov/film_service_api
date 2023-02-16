@@ -5,6 +5,7 @@ services:
   api:
     container_name: fastapi
     build: .
+    env_file: .env
     expose:
       - "8000"
     depends_on:
