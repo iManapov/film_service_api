@@ -23,11 +23,12 @@ class FilmService(Views):
 
     async def get_film_by_id(self, film_id: uuid.UUID) -> Optional[Film]:
         """
-        Получаем фильм по uuid
+        Returns film by id
 
-        @param film_id: uuid фильма
-        @return: объект-фильм
+        :param film_id: film uuid
+        :return: Film object or None
         """
+
         film = await self.get_record_by_id(film_id, 'movies')
         return Film(**film['_source']) if film else None
 
@@ -38,16 +39,16 @@ class FilmService(Views):
             page: Optional[int] = 1,
             genre: Optional[Union[uuid.UUID, list[uuid.UUID], None]] = Query(default=None),
             query: Optional[str] = None
-    ) -> Tuple[Union[list[Film], None], list[str]]:
+    ) -> Tuple[Optional[list[Film]], list[str]]:
         """
-        Получает список фильмов
+        Returns list of Films
 
-        @param sort: имя поля по которому идет сортировка
-        @param limit: количество записей на странице
-        @param page: номер страницы
-        @param genre: uuid-жанра для фильтрации
-        @param query: поисковый запрос
-        @return: Данные по фильмам
+        :param sort: sorting field
+        :param limit: the number of films on one page
+        :param page: page number
+        :param query: search query
+        :param genre: genre uuid to filter for
+        :return: Films list
         """
 
         errors = []
@@ -59,7 +60,6 @@ class FilmService(Views):
             sort = clear_sort_string(sort, 'title')
 
             if genre:
-                # если в запросе есть параметр genre - добавляем запрос
                 if isinstance(genre, uuid.UUID):
                     genre = [str(genre)]
 
@@ -82,7 +82,6 @@ class FilmService(Views):
                 }
 
             if query:
-                # если в запросе есть параметр query - добавляем запрос на поиск
                 query_ = {
                     "query": {
                         "match": {
@@ -107,7 +106,7 @@ class FilmService(Views):
 
             except RequestError:
                 films = None
-                errors.append('В запрашиваемых параметрах содержатся ошибки')
+                errors.append('Requested parameters has errors')
 
         return films, errors
 
@@ -117,7 +116,16 @@ class FilmService(Views):
             sort: Optional[str] = None,
             limit: Optional[int] = 50,
             page: Optional[int] = 1,
-    ) -> Tuple[Union[list[Film], None], list[str]]:
+    ) -> Tuple[Optional[list[Film]], list[str]]:
+        """
+        Returns similar films
+
+        :param film_id: film uuid
+        :param sort: sorting field
+        :param limit: the number of films on one page
+        :param page: page number
+        """
+
         try:
             film = await self.elastic.get('movies', film_id)
 
@@ -127,7 +135,7 @@ class FilmService(Views):
             ]
 
         except NotFoundError:
-            return None
+            return
 
         result = await self.get_films(
             sort=sort,
@@ -141,11 +149,11 @@ class FilmService(Views):
 
 def get_film_service(
         request: Request,
-        redis: RedisCache = Depends(get_redis),
+        redis: Redis = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> FilmService:
     """
-    Провайдер FilmService,
-    с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
+    FilmService provider,
+    using 'Depends', it says that it needs Redis and Elasticsearch
     """
     return FilmService(RedisCache(redis, request), ElasticSearch(elastic))

@@ -6,17 +6,16 @@ from pydantic import Required
 
 @dataclass
 class Params:
-    """
-    Класс параметров запроса API
-    """
+    """API request parameters class"""
+
     sort: Query = Query(
         default=None,
-        title="Параметры, по которым осуществляется сортировка"
+        title="Sorting parameter"
     )
 
     limit: Query = Query(
         default=50,
-        title="Размер страницы",
+        title="Page size",
         alias="page[size]",
         ge=1,
         le=100
@@ -24,34 +23,35 @@ class Params:
 
     page: Query = Query(
         default=1,
-        title="Номер страницы",
+        title="Page number",
         alias="page[number]",
         ge=1
     )
 
     query: Query = Query(
         default=Required,
-        title="Поисковый запрос"
+        title="Search query"
     )
 
     film_id: Path = Path(
         default=Required,
-        title="UUID фильма"
+        title="Film UUID"
     )
 
     genre: Query = Query(
         default=None,
-        title="UUID жанра для фильтрации фильмов"
+        title="Genre UUID to filter for"
     )
 
     person_id: Path = Path(
         default=Required,
-        title="UUID персоны"
+        title="Person UUID"
     )
 
     genre_id: Path = Path(
         default=Required,
-        title="UUID жанра"
+        title="Genre UUID"
     )
+
 
 params = Params()

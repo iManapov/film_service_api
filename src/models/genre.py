@@ -7,7 +7,7 @@ from src.models.mixin import JsonMixin
 
 
 class Genre(JsonMixin):
-    """Модель жанра в ES."""
+    """Genre model in ES"""
 
     id: uuid.UUID
     name: str
@@ -15,13 +15,13 @@ class Genre(JsonMixin):
 
 
 class BaseGenreApi(BaseModel):
-    """API-Модель для краткого описания жанра."""
+    """API-model for short genre description"""
 
     uuid: uuid.UUID
     name: str
 
 
 class DetailGenreApi(BaseGenreApi):
-    """API-Модель для подробного описания жанра."""
+    """API-model for detailed genre description"""
 
     description: Optional[str]

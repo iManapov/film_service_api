@@ -1,7 +1,7 @@
 import uuid
 
 from http import HTTPStatus
-from typing import Optional, Union
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -17,25 +17,25 @@ router = APIRouter()
 
 @router.get('/search',
             response_model=list[BasePersonApi],
-            summary="Поиск по персоналиям",
-            description="Осуществляет нечеткий поиск по персоналиям",
+            summary="Person search",
+            description="Providing a fuzzy search on persons",
             )
-async def persons(
-        sort: Union[str, None] = params.sort,
+async def search_persons(
+        sort: Optional[str] = params.sort,
         limit: Optional[int] = params.limit,
         page: Optional[int] = params.page,
         query: Optional[str] = params.query,
         person_service: PersonService = Depends(get_person_service)
-) -> Union[list[BasePersonApi], None]:
+) -> Optional[list[BasePersonApi]]:
     """
-    Возвращает результаты поиска по имени персоналии.
+    Returns search result by person name
 
-    @param sort: имя поля по которому идет сортировка
-    @param limit: количество записей на странице
-    @param page: номер страницы
-    @param query: поисковый запрос
-    @param person_service:
-    @return: Данные по персоналиям
+    :param sort: sorting field
+    :param limit: the number of films on one page
+    :param page: page number
+    :param query: search query
+    :param person_service: persons service
+    :return: information about person
     """
 
     persons, errors = await person_service.get_persons(sort=sort,
@@ -62,19 +62,19 @@ async def persons(
 
 @router.get('/{person_id}/film',
             response_model=list[BaseFilmApi],
-            summary="Список фильмов персоналии",
-            description="Осуществляет получение списка фильмов персоналии по person_id",
+            summary="Film list with this person",
+            description="Providing film search with person_id",
             )
 async def persons_film(
         person_id: uuid.UUID = params.person_id,
         person_service: PersonService = Depends(get_person_service)
-) -> Union[list[BaseFilmApi], None]:
+) -> Optional[list[BaseFilmApi]]:
     """
-    Возвращает список фильмом с участием персоналии person_id.
+    Returns film list with person_id
 
-    @param person_id: id персоналии
-    @param person_service:
-    @return: Данные по фильмам
+    :param person_id: person uuid
+    :param person_service: persons service
+    :return: films list
     """
 
     films, errors = await person_service.get_persons_film(person_id=person_id)
@@ -95,15 +95,20 @@ async def persons_film(
 
 @router.get('/{person_id}',
             response_model=BasePersonApi,
-            summary="Информация по одной персоналии",
-            description="Детальная информация по отдельной персоналии",
+            summary="Information about person with person_id",
+            description="Detailed information about person with person_id",
             )
 async def person_details(
         person_id: uuid.UUID = params.person_id,
-        person_service: PersonService =
-        Depends(get_person_service)
+        person_service: PersonService = Depends(get_person_service)
 ) -> BasePersonApi:
-    """Возвращает информацию по одной персоналии."""
+    """
+    Returns information about person
+
+    :param person_id: person uuid
+    :param person_service: persons service
+    :return: information about person
+    """
 
     person = await person_service.get_person_by_id(person_id)
     if not person:
@@ -118,23 +123,23 @@ async def person_details(
 
 @router.get('/',
             response_model=list[BasePersonApi],
-            summary="Информация по нескольким персонам",
-            description="Краткая информация по нескольким персонам",
+            summary="Get a few persons",
+            description="Short information about a few persons",
             )
-async def persons(
-        sort: Union[str, None] = params.sort,
+async def get_persons(
+        sort: Optional[str] = params.sort,
         limit: Optional[int] = params.limit,
         page: Optional[int] = params.page,
         person_service: PersonService = Depends(get_person_service)
-) -> Union[list[BasePersonApi], None]:
+) -> Optional[list[BasePersonApi]]:
     """
-    Возвращает информацию по нескольким персонам
+    Returns information about a few persons
 
-    @param sort: имя поля по которому идет сортировка
-    @param limit: количество записей на странице
-    @param page: номер страницы
-    @param person_service:
-    @return: Данные по жанрам
+    :param sort: sorting field
+    :param limit: the number of films on one page
+    :param page: page number
+    :param person_service: persons service
+    :return: a few persons with short info
     """
 
     persons, errors = await person_service.get_persons(sort=sort, limit=limit, page=page)

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class ErrorMsg:
-    """Класс сообщений об ошибках."""
+    """Error messages class"""
 
     not_found: str = 'Not found'
     bad_request: str = 'Bad request: errors in parameters'

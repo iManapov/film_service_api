@@ -1,8 +1,8 @@
 import uuid
-from typing import Optional, Union, Tuple
+from typing import Optional, Tuple
 
 from aioredis import Redis
-from elasticsearch import AsyncElasticsearch, NotFoundError
+from elasticsearch import AsyncElasticsearch
 from elasticsearch.exceptions import RequestError
 from fastapi import Depends, Request
 
@@ -16,19 +16,18 @@ from src.utils.search import AbstractSearchEngine, ElasticSearch
 
 
 class GenreService(Views):
-    """GenreService содержит бизнес-логику по работе с жанрами."""
-
     def __init__(self, cache: AbstractCache, elastic: AbstractSearchEngine):
         self.elastic = elastic
         self.cache = cache
 
     async def get_genre_by_id(self, genre_id: uuid.UUID) -> Optional[Genre]:
         """
-        Получаем жанр по uuid
+        Returns genre by uuid
 
-        @param genre_id: uuid жанра
-        @return: объект-жанр
+        :param genre_id: genre uuid
+        :return: Genre object
         """
+
         genre = await self.get_record_by_id(genre_id, 'genres')
         return Genre(**genre['_source']) if genre else None
 
@@ -37,14 +36,14 @@ class GenreService(Views):
             sort: Optional[str] = None,
             limit: Optional[int] = 50,
             page: Optional[int] = 1,
-    ) -> Tuple[Union[list[Genre], None], list[str]]:
+    ) -> Tuple[Optional[list[Genre]], list[str]]:
         """
-        Получает список жанров
+        Returns Genres list
 
-        @param sort: имя поля по которому идет сортировка
-        @param limit: количество записей на странице
-        @param page: номер страницы
-        @return: Данные по жанрам
+        :param sort: sorting field
+        :param limit: the number of films on one page
+        :param page: page number
+        :return: list of Genre objects
         """
 
         errors = []
@@ -67,18 +66,18 @@ class GenreService(Views):
 
             except RequestError:
                 genres = None
-                errors.append('В запрашиваемых параметрах содержатся ошибки')
+                errors.append('Requested parameters has errors')
 
         return genres, errors
 
 
 def get_genre_service(
         request: Request,
-        redis: RedisCache = Depends(get_redis),
+        redis: Redis = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> GenreService:
     """
-    Провайдер GenreService,
-    с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
+    GenreService provider,
+    using 'Depends', it says that it needs Redis and Elasticsearch
     """
     return GenreService(RedisCache(redis, request), ElasticSearch(elastic))

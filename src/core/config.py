@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Settings(BaseSettings):
-    """Конфиг сервиса"""
+    """Service config"""
 
     project_name: str = Field(..., env="PROJECT_NAME")
 
@@ -23,9 +23,9 @@ class Settings(BaseSettings):
     default_page_size: int = 50
     default_page_number: int = 1
 
-    FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+    FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
-    authjwt_secret_key: str = "super-secret"  # должен совпадать с сервисом авторизации
+    authjwt_secret_key: str = "super-secret"
 
     sentry_dsn: str = Field(..., env='SENTRY_DSN')
 

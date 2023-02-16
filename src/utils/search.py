@@ -1,15 +1,12 @@
-
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from typing import Union, List
+from typing import Optional, List
 
 from elasticsearch import AsyncElasticsearch
 
 
 class AbstractSearchEngine(ABC):
-    """
-    Абстрактный класс для реализации полнотекстового поиска
-    """
+    """Abstract class to implement full text search"""
 
     @abstractmethod
     def search(self, index, body, size, sort, page):
@@ -22,34 +19,33 @@ class AbstractSearchEngine(ABC):
 
 @dataclass
 class ElasticSearch(AbstractSearchEngine):
-    """
-    Класс для обращений к базе данных ElasticSearch.
-    """
+    """Class to interact with ElasticSearch"""
+
     elastic: AsyncElasticsearch
 
-    async def get(self, index, id_record) -> Union[dict, None]:
+    async def get(self, index, id_record) -> Optional[dict]:
         """
-        Получение конкретной записи по индексу и id записи.
-        Args:
-            index: Запрашиваемый индекс
-            id_record: id запрашиваемой записи
-        Returns:
-            response: Ответ одной записи от БД
+        Returns record by record id in index
+
+        :param index: index in ElasticSearch
+        :param id_record: record id
         """
+
         response = await self.elastic.get(index, id_record)
         return response
 
-    async def search(self, index, body, size, sort, page) -> Union[List[dict], None]:
+    async def search(self, index, body, size, sort, page) -> Optional[List[dict]]:
         """
-        Args:
-            index: Запрашиваемый индекс
-            sort: имя поля по которому идет сортировка
-            size: количество записей на странице
-            page: номер страницы
-            body: поисковый запрос
-        Returns:
-            Список запрашиваемых данных от БД
+        Returns search result
+
+        :param index: index in ElasticSearch
+        :param body: search body
+        :param size: page size
+        :param sort: sorting field
+        :param page: page number
+        :return: search result
         """
+
         response = await self.elastic.search(
             index=index,
             body=body,

@@ -7,7 +7,7 @@ from src.models.mixin import JsonMixin
 
 
 class Person(JsonMixin):
-    """Модель персоналий в ES."""
+    """Person model in ES"""
 
     id: uuid.UUID
     name: str
@@ -16,7 +16,7 @@ class Person(JsonMixin):
 
 
 class BasePersonApi(BaseModel):
-    """API-Модель для описания персоналий."""
+    """API-model for person description"""
 
     uuid: uuid.UUID
     name: str

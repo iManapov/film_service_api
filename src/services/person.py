@@ -1,6 +1,6 @@
 import uuid
 
-from typing import Optional, Union, Tuple
+from typing import Optional, Tuple
 
 from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
@@ -24,11 +24,12 @@ class PersonService(Views):
 
     async def get_person_by_id(self, person_id: uuid.UUID) -> Optional[Person]:
         """
-        Получаем персону по uuid
+        Returns person by id
 
-        @param person_id: uuid персоны
-        @return: объект-персона
+        :param person_id: person uuid
+        :return: Person object
         """
+
         person = await self.get_record_by_id(person_id, 'persons')
         return Person(**person['_source']) if person else None
 
@@ -38,15 +39,15 @@ class PersonService(Views):
             limit: Optional[int] = 50,
             page: Optional[int] = 1,
             query: Optional[str] = None
-    ) -> Tuple[Union[list[Person], None], list[str]]:
+    ) -> Tuple[Optional[list[Person]], list[str]]:
         """
-        Получает список персоналий по запросу query
+        Returns persons list
 
-        @param sort: имя поля по которому идет сортировка
-        @param limit: количество записей на странице
-        @param page: номер страницы
-        @param query: поисковый запрос
-        @return: Данные по персоналиям
+        :param sort: sorting field
+        :param limit: the number of films on one page
+        :param page: page number
+        :param query: search query
+        :return: Person objects list
         """
 
         errors = []
@@ -84,12 +85,12 @@ class PersonService(Views):
         return persons, errors
 
     async def get_persons_film(self, person_id: uuid.UUID) \
-            -> Tuple[Union[list[BaseFilmApi], None], list[str]]:
+            -> Tuple[Optional[list[BaseFilmApi]], list[str]]:
         """
-        Метод получения фильмов с участием персоналии с person_id.
+        Returns films with person_id
 
-        @param person_id: id персоналии
-        @return: список фильмов персоналии
+        :param person_id: person uuid
+        :return: Film objects list
         """
 
         errors = []
@@ -115,11 +116,11 @@ class PersonService(Views):
 
 def get_person_service(
         request: Request,
-        redis: RedisCache = Depends(get_redis),
+        redis: Redis = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> PersonService:
     """
-    Провайдер PersonService,
-    с помощью Depends он сообщает, что ему необходимы Redis и Elasticsearch
+    PersonService provider,
+    using 'Depends', it says that it needs Redis and Elasticsearch
     """
     return PersonService(RedisCache(redis, request), ElasticSearch(elastic))

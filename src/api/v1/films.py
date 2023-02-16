@@ -1,7 +1,7 @@
 import uuid
 
 from http import HTTPStatus
-from typing import Optional, Union
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -13,31 +13,31 @@ from src.models.film import BaseFilmApi, DetailFilmApi
 from src.core.params import params
 from src.core.error_messages import error_msgs
 
-# Объект router, в котором регистрируем обработчики
+
 router = APIRouter()
 
 
 @router.get('/search',
             response_model=list[BaseFilmApi],
-            summary="Поиск по фильмам",
-            description="Осуществляет нечеткий поиск по фильмам",
+            summary="Film search",
+            description="Providing a fuzzy search on films",
             )
-async def films(
-        sort: Union[str, None] = params.sort,
+async def search_films(
+        sort: Optional[str] = params.sort,
         limit: Optional[int] = params.limit,
         page: Optional[int] = params.page,
         query: Optional[str] = params.query,
         film_service: FilmService = Depends(get_film_service)
-) -> Union[list[BaseFilmApi], None]:
+) -> Optional[list[BaseFilmApi]]:
     """
-    Возвращает результаты поиска по названию фильма
+    Returns search result by film name
 
-    @param sort: имя поля по которому идет сортировка
-    @param limit: количество записей на странице
-    @param page: номер страницы
-    @param query: поисковый запрос
-    @param film_service:
-    @return: Данные по фильмам
+    :param sort: sorting field
+    :param limit: the number of films on one page
+    :param page: page number
+    :param query: search query
+    :param film_service: film service
+    :return: film data
     """
 
     films, errors = await film_service.get_films(sort=sort,
@@ -63,25 +63,25 @@ async def films(
 
 @router.get('/same/{film_id}',
             response_model=list[BaseFilmApi],
-            summary="Похожие фильмы",
-            description="Похожие фильмы для заданного фильма",
+            summary="Similar films",
+            description="Similar films for current film",
             )
 async def same_films(
         film_id: uuid.UUID = params.film_id,
-        sort: Union[str, None] = params.sort,
+        sort: Optional[str] = params.sort,
         limit: Optional[int] = params.limit,
         page: Optional[int] = params.page,
         film_service: FilmService = Depends(get_film_service)
-) -> Union[list[BaseFilmApi], None]:
+) -> Optional[list[BaseFilmApi]]:
     """
-    Возвращает похожие фильмы для заданного фильма
+    Returns similar films for film with film_id
 
-    @param film_id: uuid фильма
-    @param sort: имя поля по которому идет сортировка
-    @param limit: количество записей на странице
-    @param page: номер страницы
-    @param film_service:
-    @return: Данные по похожим фильмам
+    :param film_id: film uuid
+    :param limit: the number of films on one page
+    :param page: page number
+    :param sort: sorting field
+    :param film_service: film service
+    :return: Similar film's data
     """
 
     result = await film_service.get_same_films(
@@ -112,27 +112,28 @@ async def same_films(
 
     return same_film_list
 
+
 @router.get('/',
             response_model=list[BaseFilmApi],
-            summary="Информация по нескольким фильмам",
-            description="Краткая информация по нескольким фильмам",
+            summary="Get a few films",
+            description="A few films with short information",
             )
-async def films(
-        sort: Union[str, None] = params.sort,
+async def get_all_films(
+        sort: Optional[str] = params.sort,
         limit: Optional[int] = params.limit,
         page: Optional[int] = params.page,
-        genre: Optional[Union[list[uuid.UUID]]] = params.genre,
+        genre: Optional[list[uuid.UUID]] = params.genre,
         film_service: FilmService = Depends(get_film_service)
-) -> Union[list[BaseFilmApi], None]:
+) -> Optional[list[BaseFilmApi]]:
     """
-    Возвращает информацию по нескольким фильмам
+    Returns a few films with short information
 
-    @param sort: имя поля по которому идет сортировка
-    @param limit: количество записей на странице
-    @param page: номер страницы
-    @param genre: uuid-жанра для фильтрации
-    @param film_service:
-    @return: Данные по фильмам
+    :param limit: the number of films on one page
+    :param page: page number
+    :param sort: sorting field
+    :param genre: genre uuid to filter for
+    :param film_service: film service
+    :return: List of films with short information
     """
 
     films, errors = await film_service.get_films(sort=sort,
@@ -159,12 +160,11 @@ async def films(
 
 @router.get('/{film_id}',
             response_model=DetailFilmApi,
-            summary="Информация по одному фильму",
+            summary="Information about film",
             description="""
-                        Детальная информация по отдельному фильму.
-                        Если у фильма проставлен тэг 'subscription_only'
-                        то доступ только пользователям с ролью 'subscriber
-                        """
+                Detailed information about film
+                If a film has the 'subscription_only' tag then access given to only users with the role 'subscriber'
+            """
             )
 async def film_details(
         film_id: uuid.UUID = params.film_id,
@@ -173,8 +173,15 @@ async def film_details(
         authorize: AuthJWT = Depends()
 ) -> DetailFilmApi:
     """
-    Возвращает информацию по одному фильму
+    Returns detailed information about film with film_id
+
+    :param film_id: film uuid
+    :param film_service: film service
+    :param token: authorization token
+    :param authorize: JWT token
+    :returns: Information about film
     """
+
     try:
         authorize.jwt_required()
     except JWTDecodeError:

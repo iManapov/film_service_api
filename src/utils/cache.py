@@ -11,9 +11,8 @@ from src.core.config import settings
 
 
 class AbstractCache(ABC):
-    """
-    Абстрактный класс для реализации кеширования
-    """
+    """Abstract class for cache"""
+
     @abstractmethod
     def set(self, data: dict):
         pass
@@ -26,30 +25,35 @@ class AbstractCache(ABC):
 @dataclass
 class RedisCache(AbstractCache):
     """
-    Класс для кеширования в Redis
-    В качестве ключа используется текущий запрошенный URL
-    URL получаем из request
+    Class for Redis cache
+    Requested URL uses as key
+    URL is getting from request
     """
+
     redis: Redis
     request: Request
 
     async def set(self, data: dict):
         """
-        Сохранение в кеш
+        Write record to cache
 
-        @param data: данные для сохранения в кеш
+        :param data: cache data
         """
+
         current_url = f"{self.request['path']}?{self.request['query_string']}"
-        await self.redis.set(current_url,
-                             json.dumps(data),
-                             expire=settings.FILM_CACHE_EXPIRE_IN_SECONDS)
+        await self.redis.set(
+            current_url,
+            json.dumps(data),
+            ex=settings.FILM_CACHE_EXPIRE_IN_SECONDS
+        )
 
     async def get(self) -> Union[dict, None]:
         """
-        Извлечение из кеша
+        Returns cache data by key
 
-        @return: данные из кеша
+        :return: cache data
         """
+
         current_url = f"{self.request['path']}?{self.request['query_string']}"
         data = await self.redis.get(current_url)
         if not data:

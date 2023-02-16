@@ -1,7 +1,7 @@
 import uuid
 
 from http import HTTPStatus
-from typing import Optional, Union
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -16,23 +16,23 @@ router = APIRouter()
 
 @router.get('/',
             response_model=list[BaseGenreApi],
-            summary="Информация по нескольким жанрам",
-            description="Краткая информация по нескольким жанрам",
+            summary="Information about a few genres",
+            description="Short information about a few genres",
             )
-async def genres(
-        sort: Union[str, None] = params.sort,
+async def get_genres(
+        sort: Optional[str] = params.sort,
         limit: Optional[int] = params.limit,
         page: Optional[int] = params.page,
         genre_service: GenreService = Depends(get_genre_service)
-) -> Union[list[BaseGenreApi], None]:
+) -> Optional[list[BaseGenreApi]]:
     """
-    Возвращает информацию по нескольким жанрам
+    Returns information about a few genres
 
-    @param sort: имя поля по которому идет сортировка
-    @param limit: количество записей на странице
-    @param page: номер страницы
-    @param genre_service:
-    @return: Данные по жанрам
+    :param sort: sorting field
+    :param limit: the number of films on one page
+    :param page: page number
+    :param genre_service: genre service
+    :return: information about a few genres
     """
 
     genres, errors = await genre_service.get_genres(sort=sort, limit=limit, page=page)
@@ -53,14 +53,20 @@ async def genres(
 
 @router.get('/{genre_id}',
             response_model=DetailGenreApi,
-            summary="Информация по одному жанру",
-            description="Детальная информация по отдельному жанру",
+            summary="Detailed information about genre",
+            description="Detailed information about genre",
             )
 async def genre_details(
         genre_id: uuid.UUID = params.genre_id,
         genre_service: GenreService = Depends(get_genre_service)
 ) -> DetailGenreApi:
-    """Возвращает информацию по одному жанру."""
+    """
+    Returns detailed information about genre
+
+    :param genre_id: genre uuid
+    :param genre_service: genre service
+    :return: detailed information about genre
+    """
 
     genre = await genre_service.get_genre_by_id(genre_id)
     if not genre:

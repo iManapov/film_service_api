@@ -10,9 +10,7 @@ from src.utils.search import AbstractSearchEngine
 
 
 class AbstractViewEngine(ABC):
-    """
-    Абстрактный класс для реализации отдачи данных сервисом
-    """
+    """Abstract class for services"""
 
     @abstractmethod
     def get_record_by_id(self, record_id, index):
@@ -26,12 +24,13 @@ class Views(AbstractViewEngine):
 
     async def get_record_by_id(self, record_id: uuid.UUID, index: str) -> Optional[dict]:
         """
-        Получаем запись по uuid
+        Returns record by id
 
-        @param record_id: uuid записи
-        @param index: Запрашиваемый индекс
-        @return: запись в виде словаря
+        :param record_id: record uuid
+        :param index: required index
+        :return: record in dict
         """
+
         record = await self.cache.get()
 
         if not record:
